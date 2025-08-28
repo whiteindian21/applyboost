@@ -1,1 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApplyBoost - Land Your Dream Job with AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4361EE',
+                        secondary: '#3A0CA3',
+                        accent: '#7209B7',
+                        light: '#F8F9FA',
+                        dark: '#212529',
+                        success: '#4CC9F0',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'gradient': 'gradient 15s ease infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        gradient: {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(-45deg, #4361EE, #3A0CA3, #7209B7, #4CC9F0);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #4361EE, #3A0CA3, #7209B7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: gradient 5s ease infinite;
+        }
+        
+        .feature-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .pricing-card {
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .popular {
+            position: relative;
+            border: 2px solid #4361EE;
+            transform: scale(1.05);
+        }
+        
+        .popular::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4361EE;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 10;
+        }
+        
+        .nav-scroll {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .cta-button {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            background: linear-gradient(135deg, #4361EE 0%, #3A0CA3 100%);
+            color: white;
+        }
+        
+        .stat-card:hover h3, .stat-card:hover p {
+            color: white;
+        }
+        
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* New styles for enhancements */
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 24px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .hamburger-menu span {
+            height: 2px;
+            width: 100%;
+            background-color: #212529;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+            transition: right 0.4s ease;
+            z-index: 1000;
+            padding: 80px 30px 30px;
+        }
+        
+        .mobile-nav.active {
+            right: 0;
+        }
+        
+        .mobile-nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 999;
+        }
+        
+        .mobile-nav-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .client-logo {
+            filter: grayscale(100%);
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+        
+        .client-logo:hover {
+            filter: grayscale(0);
+            opacity: 1;
+        }
+        
+        .tech-pill {
+            background: rgba(67, 97, 238, 0.1);
+            color: #4361EE;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+            margin: 0 8px 8px 0;
+        }
+        
+        .faq-item {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .faq-question {
+            padding: 20px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+        }
+        
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        .lazy-load {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .lazy-load.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(90deg, #4361EE, #3A0CA3);
+            z-index: 1000;
+            transition: width 0.2s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .hamburger-menu {
+                display: flex;
+            }
+            
+            .desktop-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Scroll Progress Indicator -->
+    <div class="scroll-progress"></div>
 
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" id="mobileOverlay"></div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobileNav">
+        <div class="flex flex-col space-y-6">
+            <a href="#features" class="text-dark hover:text-primary transition font-medium py-2" onclick="closeMobileNav()">Features</a>
+            <a href="#pricing" class="text-dark hover:text-primary transition font-medium py-2" onclick="closeMobileNav()">Pricing</a>
+            <a href="#testimonials" class="text-dark hover:text-primary transition font-medium py-2" onclick="closeMobileNav()">Testimonials</a>
+            <a href="#faq" class="text-dark hover:text-primary transition font-medium py-2" onclick="closeMobileNav()">FAQ</a>
+            <a href="auth.html" class="bg-primary text-white px-5 py-2.5 rounded-xl hover:bg-secondary transition-all duration-300 shadow-md hover:shadow-lg font-medium cta-button mt-4 text-center">Sign In</a>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed w-full z-50 py-3 transition-all duration-300">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <span class="text-primary text-2xl font-bold flex items-center">
+                    <i class="fas fa-bolt mr-2 text-success"></i>ApplyBoost
+                </span>
+            </div>
+            <div class="desktop-nav hidden md:flex space-x-8">
+                <a href="#features" class="text-dark hover:text-primary transition font-medium">Features</a>
+                <a href="#pricing" class="text-dark hover:text-primary transition font-medium">Pricing</a>
+                <a href="#testimonials" class="text-dark hover:text-primary transition font-medium">Testimonials</a>
+                <a href="#faq" class="text-dark hover:text-primary transition font-medium">FAQ</a>
+            </div>
+            <div class="flex items-center">
+                <a href="auth.html" class="hidden md:block bg-primary text-white px-5 py-2.5 rounded-xl hover:bg-secondary transition-all duration-300 shadow-md hover:shadow-lg font-medium cta-button">Sign In</a>
+                <div class="hamburger-menu ml-4 md:hidden" id="hamburgerMenu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-4 gradient-bg text-white overflow-hidden">
+        <div class="container mx-auto max-w-6xl">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-12 lg:mb-0">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">Land Your Dream Job <span class="block">With AI Power</span></h1>
+                    <p class="text-xl mb-10 opacity-90 max-w-lg">AI-powered resumes & cover letters tailored for every job application. Get noticed by employers.</p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="auth.html" class="bg-white text-primary font-semibold px-8 py-4 rounded-xl text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg cta-button text-center">Get Started Free</a>
+                        <a href="#features" class="glass-effect text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all duration-300 text-center">How It Works</a>
+                    </div>
+                    
+                    <div class="mt-12 flex items-center space-x-8">
+                        <div class="flex -space-x-3">
+                            <div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
+                                <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User" class="lazy-load" loading="lazy">
+                            </div>
+                            <div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="lazy-load" loading="lazy">
+                            </div>
+                            <div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
+                                <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="User" class="lazy-load" loading="lazy">
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Join <span class="font-bold">12,500+</span> job seekers who got hired</p>
+                            <div class="flex items-center mt-1">
+                                <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                <span class="ml-2 text-sm">4.9/5 from 2,300+ reviews</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 relative">
+                    <div class="relative z-10 rounded-2xl overflow-hidden shadow-2xl transform rotate-2 animate-float">
+                        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" alt="AI Resume Builder" class="w-full h-auto lazy-load" loading="lazy">
+                    </div>
+                    <div class="absolute -top-6 -right-6 w-32 h-32 bg-success/20 rounded-full blur-xl"></div>
+                    <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-accent/20 rounded-full blur-xl"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trusted By Section -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <p class="text-gray-600 font-medium">Trusted by job seekers at</p>
+            </div>
+            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 max-w-4xl mx-auto">
+                <div class="client-logo w-24">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Google_logo.svg" alt="Google" class="w-full h-auto" loading="lazy">
+                </div>
+                <div class="client-logo w-24">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" class="w-full h-auto" loading="lazy">
+                </div>
+                <div class="client-logo w-20">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Microsoft_logo_%282012-2019%29.svg" alt="Microsoft" class="w-full h-auto" loading="lazy">
+                </div>
+                <div class="client-logo w-24">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/01/LinkedIn_Logo.svg" alt="LinkedIn" class="w-full h-auto" loading="lazy">
+                </div>
+                <div class="client-logo w-16">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple" class="w-full h-auto" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                <div class="stat-card bg-light p-6 rounded-2xl text-center border border-gray-100 lazy-load">
+                    <h3 class="text-3xl font-bold text-primary mb-2">97%</h3>
+                    <p class="text-gray-600 font-medium">Interview Rate</p>
+                </div>
+                <div class="stat-card bg-light p-6 rounded-2xl text-center border border-gray-100 lazy-load">
+                    <h3 class="text-3xl font-bold text-primary mb-2">4.8x</h3>
+                    <p class="text-gray-600 font-medium">More Interviews</p>
+                </div>
+                <div class="stat-card bg-light p-6 rounded-2xl text-center border border-gray-100 lazy-load">
+                    <h3 class="text-3xl font-bold text-primary mb-2">64%</h3>
+                    <p class="text-gray-600 font-medium">Faster Hired</p>
+                </div>
+                <div class="stat-card bg-light p-6 rounded-2xl text-center border border-gray-100 lazy-load">
+                    <h3 class="text-3xl font-bold text-primary mb-2">12.5k+</h3>
+                    <p class="text-gray-600 font-medium">Users Hired</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-2xl mx-auto mb-16 lazy-load">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-dark">Powerful AI Job Search Tools</h2>
+                <p class="text-lg text-gray-600">Our advanced AI technology helps you create application materials that get noticed by employers.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card bg-white p-8 rounded-2xl border border-gray-100 shadow-sm lazy-load">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mb-6">
+                        <i class="fas fa-file-alt text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-dark">Resume Booster</h3>
+                    <p class="text-gray-600 mb-4">AI analyzes job descriptions and improves your resume to match exactly what employers are looking for.</p>
+                    <ul class="text-gray-600 space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            <span>Keyword optimization</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            <span>ATS compatibility check</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            <span>Skills gap analysis</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="feature-card bg-white p-8 rounded-2xl border border-gray-100 shadow-sm lazy-load">
+                    <div class="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center mb-6">
+                        <i class="fas fa-envelope-open-text text-accent text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-dark">Cover Letter Generator</h3>
+                    <p class="text-gray-600 mb-4">AI tailors personalized cover letters for each job application, highlighting your most relevant experience.</p>
+                    <ul class="text-gray-600 space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            <span>Company-specific tailoring</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            <span>Tone adjustment</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            <span>Achievement highlighting</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="feature-card bg-white p-8 rounded-2xl border border-gray-100 shadow-sm lazy-load">
+                    <div class="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center mb-6">
+                        <i class="fas fa-clipboard-list text-secondary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-dark">Career Templates</h3>
+                    <p class="text-gray-600 mb-4">Choose from ATS-friendly, creative, or corporate templates designed to help your application stand out.</p>
+                    <ul class="text-gray-600 space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            <span>Industry-specific templates</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            <span>Custom color schemes</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            <span>Export multiple formats</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-12 lg:mb-0">
+                    <div class="max-w-lg mx-auto lg:mx-0">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6 text-dark">Advanced AI Technology</h2>
+                        <p class="text-lg text-gray-600 mb-6">Our proprietary AI algorithms analyze thousands of successful resumes and job descriptions to identify what hiring managers are looking for.</p>
+                        
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-dark">Technologies we use:</h3>
+                            <div class="flex flex-wrap">
+                                <span class="tech-pill">Natural Language Processing</span>
+                                <span class="tech-pill">Machine Learning</span>
+                                <span class="tech-pill">ATS Optimization</span>
+                                <span class="tech-pill">Sentiment Analysis</span>
+                            </div>
+                        </div>
+                        
+                        <a href="#pricing" class="bg-primary text-white font-semibold px-6 py-3 rounded-xl text-lg hover:bg-secondary transition-all duration-300 shadow-md cta-button inline-block">Try Our AI</a>
+                    </div>
+                </div>
+                <div class="lg:w-1/2">
+                    <div class="relative max-w-md mx-auto">
+                        <div class="absolute -top-6 -left-6 w-32 h-32 bg-success/20 rounded-full blur-xl animate-pulse-slow"></div>
+                        <div class="absolute -bottom-6 -right-6 w-40 h-40 bg-accent/20 rounded-full blur-xl animate-pulse-slow" style="animation-delay: 1s;"></div>
+                        <div class="relative bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                            <div class="flex items-center mb-4">
+                                <div class="w-3 h-3 rounded-full bg-red-400 mr-2"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            </div>
+                            <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                <div class="text-sm text-gray-600 mb-2">AI analyzing job description...</div>
+                                <div class="h-2 bg-gray-300 rounded-full mb-1"></div>
+                                <div class="h-2 bg-gray-300 rounded-full mb-1 w-3/4"></div>
+                                <div class="h-2 bg-gray-300 rounded-full w-1/2"></div>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <div class="text-sm text-gray-600 mb-2">Optimizing resume with keywords:</div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">leadership</span>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">strategic planning</span>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">budget management</span>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">team development</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-2xl mx-auto mb-16 lazy-load">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-dark">How ApplyBoost Works</h2>
+                <p class="text-lg text-gray-600">Get job-ready application materials in just a few clicks</p>
+            </div>
+            
+            <div class="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8 max-w-5xl mx-auto">
+                <div class="flex-1 flex flex-col items-center text-center lazy-load">
+                    <div class="w-20 h-20 rounded-2xl bg-blue-100 flex items-center justify-center mb-6">
+                        <span class="text-3xl font-bold text-primary">1</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-dark">Upload Your Resume</h3>
+                    <p class="text-gray-600">Start with your existing resume or build one from scratch with our templates.</p>
+                </div>
+                
+                <div class="flex-1 flex flex-col items-center text-center lazy-load">
+                    <div class="w-20 h-20 rounded-2xl bg-purple-100 flex items-center justify-center mb-6">
+                        <span class="text-3xl font-bold text-accent">2</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-dark">Paste Job Description</h3>
+                    <p class="text-gray-600">Provide the job description you're applying for and let our AI analyze requirements.</p>
+                </div>
+                
+                <div class="flex-1 flex flex-col items-center text-center lazy-load">
+                    <div class="w-20 h-20 rounded-2xl bg-green-100 flex items-center justify-center mb-6">
+                        <span class="text-3xl font-bold text-secondary">3</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-dark">Get AI-Optimized Materials</h3>
+                    <p class="text-gray-600">Receive a tailored resume and cover letter designed to get you noticed.</p>
+                </div>
+            </div>
+            
+            <div class="mt-16 text-center lazy-load">
+                <a href="auth.html" class="bg-primary text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-secondary transition-all duration-300 shadow-md cta-button inline-block">Get Started Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-2xl mx-auto mb-16 lazy-load">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-dark">Simple, Transparent Pricing</h2>
+                <p class="text-lg text-gray-600">Choose the plan that works best for your job search needs.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Free Plan -->
+                <div class="pricing-card bg-white p-8 rounded-2xl shadow-md flex flex-col border border-gray-200 lazy-load">
+                    <div class="flex items-center mb-4">
+                        <h3 class="text-2xl font-bold text-dark">Free</h3>
+                        <span class="ml-2 text-green-500 text-xl">🟢</span>
+                    </div>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold">$0</span>
+                        <span class="text-gray-600">/month</span>
+                    </div>
+                    <ul class="mb-8 flex-grow space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>3 resumes per month</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>3 cover letters per month</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Basic templates only</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>AI assistant (limited usage)</span>
+                        </li>
+                    </ul>
+                    <a href="auth.html" class="bg-gray-100 text-dark font-semibold py-3 rounded-xl text-center hover:bg-gray-200 transition">Get Started</a>
+                </div>
+                
+                <!-- Pro Plan -->
+                <div class="pricing-card popular bg-white p-8 rounded-2xl shadow-lg flex flex-col lazy-load">
+                    <div class="flex items-center mb-4">
+                        <h3 class="text-2xl font-bold text-dark">Pro</h3>
+                        <span class="ml-2 text-blue-500 text-xl">🔵</span>
+                    </div>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold">$29</span>
+                        <span class="text-gray-600">/month</span>
+                    </div>
+                    <ul class="mb-8 flex-grow space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>30 resumes per month</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>30 cover letters per month</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span> Access to 10 templates</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>AI tailored for specific job descriptions</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Save & manage applications in dashboard</span>
+                        </li>
+                    
+                    </ul>
+                    <a href="auth.html" class="gradient-bg text-white font-semibold py-3 rounded-xl text-center hover:opacity-90 transition cta-button">Get Started</a>
+                </div>
+                
+                <!-- Career Plan (kept as before) -->
+                <div class="pricing-card bg-white p-8 rounded-2xl shadow-md flex flex-col border border-gray-200 lazy-load">
+                    <h3 class="text-2xl font-bold mb-4 text-dark">Career</h3>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold">$49</span>
+                        <span class="text-gray-600">/month</span>
+                    </div>
+                    <ul class="mb-8 flex-grow space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Unlimited Resumes & Cover Letters</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Unlimited storage</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Export to PDF/Word</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>AI Templates library</span>
+                        </li>
+                    </ul>
+                    <a href="auth.html" class="bg-gray-800 text-white font-semibold py-3 rounded-xl text-center hover:bg-dark transition">Get Started</a>
+                </div>
+            </div>
+            
+            
+        </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section id="testimonials" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-2xl mx-auto mb-16 lazy-load">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-dark">Success Stories</h2>
+                <p class="text-lg text-gray-600">Hear from people who landed their dream jobs with ApplyBoost</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <div class="bg-light p-8 rounded-2xl shadow-md border border-gray-100 lazy-load">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gray-300 mr-4 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Sarah M." class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Sarah M.</h4>
+                            <p class="text-gray-600">Software Engineer</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"ApplyBoost helped me tailor my resume for each job application. I got 3x more interviews and landed my dream job at Google!"</p>
+                    <div class="flex mt-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-light p-8 rounded-2xl shadow-md border border-gray-100 lazy-load">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gray-300 mr-4 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="James K." class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div>
+                            <h4 class="font-bold">James K.</h4>
+                            <p class="text-gray-600">Marketing Director</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"The cover letter generator is amazing! It saved me hours of work and helped me stand out from other applicants. Worth every penny."</p>
+                    <div class="flex mt-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                </div>
+
+                <div class="bg-light p-8 rounded-2xl shadow-md border border-gray-100 lazy-load">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gray-300 mr-4 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Emily R." class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Emily R.</h4>
+                            <p class="text-gray-600">Product Manager</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"I was struggling to get interviews despite having the right experience. ApplyBoost transformed my resume and I got 3 job offers in 2 weeks!"</p>
+                    <div class="flex mt-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-light p-8 rounded-2xl shadow-md border border-gray-100 lazy-load">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gray-300 mr-4 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Michael T." class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Michael T.</h4>
+                            <p class="text-gray-600">Data Scientist</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"The ATS optimization feature is a game-changer. My resume now gets past automated systems and straight to human reviewers."</p>
+                    <div class="flex mt-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-2xl mx-auto mb-16 lazy-load">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-dark">Frequently Asked Questions</h2>
+                <p class="text-lg text-gray-600">Everything you need to know about ApplyBoost</p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto space-y-4">
+                <div class="faq-item bg-gray-50 p-4 rounded-2xl">
+                    <div class="faq-question">
+                        <h3 class="text-lg font-semibold text-dark">How does the AI improve my resume?</h3>
+                        <span class="faq-icon text-primary transition-transform duration-300">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="text-gray-600 pt-2">Our AI analyzes job descriptions to identify key skills and requirements, then optimizes your resume with relevant keywords and achievements to match what employers are looking for. It also improves readability and ensures ATS (Applicant Tracking System) compatibility.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item bg-gray-50 p-4 rounded-2xl">
+                    <div class="faq-question">
+                        <h3 class="text-lg font-semibold text-dark">Is my data secure with ApplyBoost?</h3>
+                        <span class="faq-icon text-primary transition-transform duration-300">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="text-gray-600 pt-2">Yes, we take data security seriously. All your information is encrypted and we never share your personal data with third parties. We use industry-standard security protocols to protect your information, and you can delete your data at any time.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item bg-gray-50 p-4 rounded-2xl">
+                    <div class="faq-question">
+                        <h3 class="text-lg font-semibold text-dark">Can I cancel my subscription anytime?</h3>
+                        <span class="faq-icon text-primary transition-transform duration-300">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="text-gray-600 pt-2">Absolutely. You can cancel your subscription at any time and still have access until the end of your billing period. We also offer a 7-day money-back guarantee if you're not satisfied with our service.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item bg-gray-50 p-4 rounded-2xl">
+                    <div class="faq-question">
+                        <h3 class="text-lg font-semibold text-dark">How long does it take to optimize a resume?</h3>
+                        <span class="faq-icon text-primary transition-transform duration-300">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="text-gray-600 pt-2">Our AI typically generates optimized resumes and cover letters in under 2 minutes. The exact time may vary based on the complexity of the job description and the length of your original resume.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item bg-gray-50 p-4 rounded-2xl">
+                    <div class="faq-question">
+                        <h3 class="text-lg font-semibold text-dark">Do you offer refunds?</h3>
+                        <span class="faq-icon text-primary transition-transform duration-300">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="text-gray-600 pt-2">Yes, we offer a 7-day money-back guarantee on all paid plans. If you're not satisfied with our service, simply contact our support team within 7 days of your purchase for a full refund.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="py-16 gradient-bg text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to land your dream job?</h2>
+            <p class="text-xl mb-10 max-w-2xl mx-auto">Join thousands of successful job seekers who use ApplyBoost to create winning applications.</p>
+            <a href="auth.html" class="bg-white text-primary font-semibold px-8 py-4 rounded-xl text-lg hover:bg-gray-100 transition shadow-lg cta-button inline-block">Get Started Today</a>
+            <p class="mt-6 text-sm opacity-80">No credit card required. Start your free trial today.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <p class="text-2xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-bolt mr-2 text-success"></i>ApplyBoost
+                    </p>
+                    <p class="text-gray-400 mb-6">AI-powered resume and cover letter optimization to help you land your dream job faster.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-linkedin-in fa-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram fa-lg"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Press</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>© 2025 ApplyBoost. All rights reserved. Made with <i class="fas fa-heart text-red-400 mx-1"></i> for job seekers worldwide</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navigation scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('nav-scroll', 'py-2');
+                navbar.classList.remove('py-3');
+            } else {
+                navbar.classList.remove('nav-scroll', 'py-2');
+                navbar.classList.add('py-3');
+            }
+            
+            // Scroll progress indicator
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.querySelector('.scroll-progress').style.width = scrolled + '%';
+        });
+        
+        // Mobile navigation toggle
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const mobileNav = document.getElementById('mobileNav');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        
+        function toggleMobileNav() {
+            mobileNav.classList.toggle('active');
+            mobileOverlay.classList.toggle('active');
+            document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
+        }
+        
+        function closeMobileNav() {
+            mobileNav.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        hamburgerMenu.addEventListener('click', toggleMobileNav);
+        mobileOverlay.addEventListener('click', closeMobileNav);
+        
+        // FAQ accordion functionality
+        const faqItems = document.querySelectorAll('.faq-item');
+        
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            
+            question.addEventListener('click', () => {
+                // Close all other items
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('active');
+                    }
+                });
+                
+                // Toggle current item
+                item.classList.toggle('active');
+            });
+        });
+        
+        // Animation for elements on scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Lazy load animation
+            const lazyLoadElements = document.querySelectorAll('.lazy-load');
+            
+            const lazyLoadObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('loaded');
+                        lazyLoadObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            lazyLoadElements.forEach(element => {
+                lazyLoadObserver.observe(element);
+            });
+            
+            // Animation for feature cards on scroll
+            const animateOnScroll = function(elements) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = 1;
+                            entry.target.style.transform = 'translateY(0)';
+                        }
+                    });
+                }, { threshold: 0.1 });
+                
+                elements.forEach(element => {
+                    element.style.opacity = 0;
+                    element.style.transform = 'translateY(20px)';
+                    element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    observer.observe(element);
+                });
+            };
+            
+            // Animate feature cards
+            const featureCards = document.querySelectorAll('.feature-card');
+            animateOnScroll(featureCards);
+            
+            // Animate pricing cards
+            const pricingCards = document.querySelectorAll('.pricing-card');
+            animateOnScroll(pricingCards);
+            
+            // Animate stats cards
+            const statCards = document.querySelectorAll('.stat-card');
+            animateOnScroll(statCards);
+        });
+    </script>
+</body>
+</html>
