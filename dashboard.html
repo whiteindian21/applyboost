@@ -793,35 +793,51 @@
     </div>
 
 
-    <script>
-        // Initialize Supabase
-        const SUPABASE_URL = 'https://xchumlvegsfoqottucgp.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjaHVtbHZlZ3Nmb3FvdHR1Y2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzNDAwNzIsImV4cCI6MjA3MTkxNjA3Mn0.lYR65UE9w0USI_cIj9xsEHgD4x255l_My1cBBnQRFwg';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // DOM Elements
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const currentTabTitle = document.getElementById('current-tab-title');
-        const welcomeMessage = document.getElementById('welcome-message');
-        const logoutBtn = document.getElementById('logout-btn');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const loadingText = document.getElementById('loading-text');
-        
+   <script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://xchumlvegsfoqottucgp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjaHVtbHZlZ3Nmb3FvdHR1Y2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzNDAwNzIsImV4cCI6MjA3MTkxNjA3Mn0.lYR65UE9w0USI_cIj9xsEHgD4x255l_My1cBBnQRFwg';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // DOM Elements
+    let mobileMenuButton, sidebar, overlay, tabButtons, tabContents, currentTabTitle, welcomeMessage, logoutBtn, loadingOverlay, loadingText;
+    
+    // Initialize the application when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeElements();
+        setupEventListeners();
+        checkAuth();
+    });
+    
+    function initializeElements() {
+        mobileMenuButton = document.getElementById('mobile-menu-button');
+        sidebar = document.getElementById('sidebar');
+        overlay = document.getElementById('overlay');
+        tabButtons = document.querySelectorAll('.tab-btn');
+        tabContents = document.querySelectorAll('.tab-content');
+        currentTabTitle = document.getElementById('current-tab-title');
+        welcomeMessage = document.getElementById('welcome-message');
+        logoutBtn = document.getElementById('logout-btn');
+        loadingOverlay = document.getElementById('loading-overlay');
+        loadingText = document.getElementById('loading-text');
+    }
+    
+    function setupEventListeners() {
         // Mobile menu toggle
-        mobileMenuButton.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('open');
-        });
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', () => {
+                if (sidebar) sidebar.classList.toggle('open');
+                if (overlay) overlay.classList.toggle('open');
+            });
+        }
         
-        overlay.addEventListener('click', () => {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('open');
-        });
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                if (sidebar) sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+            });
+        }
         
         // Tab switching
         tabButtons.forEach(button => {
@@ -841,296 +857,39 @@
                 tabContents.forEach(content => {
                     content.classList.remove('active');
                 });
-                document.getElementById(`${tab}-tab`).classList.add('active');
+                const tabElement = document.getElementById(`${tab}-tab`);
+                if (tabElement) tabElement.classList.add('active');
                 
                 // Update title
-                currentTabTitle.textContent = button.textContent.trim();
+                if (currentTabTitle) currentTabTitle.textContent = button.textContent.trim();
                 
                 // Update welcome message based on tab
                 updateWelcomeMessage(tab);
                 
                 // Close mobile menu after selection
                 if (window.innerWidth < 768) {
-                    sidebar.classList.remove('open');
-                    overlay.classList.remove('open');
+                    if (sidebar) sidebar.classList.remove('open');
+                    if (overlay) overlay.classList.remove('open');
                 }
             });
         });
         
-        // Update welcome message based on active tab
-        function updateWelcomeMessage(tab) {
-            const messages = {
-                'resume': 'Ready to boost your resume for that dream job?',
-                'cover-letter': 'Create the perfect cover letter for your application',
-                'documents': 'Manage your saved resumes and cover letters',
-                'settings': 'Manage your account settings and subscription'
-            };
-            
-            welcomeMessage.textContent = messages[tab] || 'Welcome back! Ready to boost your job search?';
-        }
-        
-        // Show toast notification
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `p-4 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`;
-            toast.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-            
-            document.getElementById('toast-container').appendChild(toast);
-            
-            // Remove toast after 5 seconds
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.5s';
-                setTimeout(() => toast.remove(), 500);
-            }, 5000);
-        }
-        
-        // Show loading overlay
-        function showLoading(message = 'Processing your request...') {
-            loadingText.textContent = message;
-            loadingOverlay.classList.remove('hidden');
-        }
-        
-        // Hide loading overlay
-        function hideLoading() {
-            loadingOverlay.classList.add('hidden');
-        }
-        
-        // Check authentication status
-        async function checkAuth() {
-            const { data: { session }, error } = await supabase.auth.getSession();
-            
-            if (!session) {
-                window.location.href = 'auth.html';
-                return;
-            }
-            
-            // Set user info
-            const user = session.user;
-            document.getElementById('user-email').textContent = user.email;
-            document.getElementById('user-initial').textContent = user.email.charAt(0).toUpperCase();
-            document.getElementById('user-email-input').value = user.email;
-            
-            // Load user data (subscription tier, usage, etc.)
-            await loadUserData(user);
-            
-            // Start the reset timer
-            startResetTimer();
-            
-            // Initialize PayPal button if user is on free plan
-            if (document.getElementById('user-tier-badge').textContent === 'Free Plan') {
-                initPayPalButton();
-            }
-        }
-        
-        // Load user data from Supabase
-        async function loadUserData(user) {
-            try {
-                // Fetch user profile from Supabase
-                const { data: profile, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
-                
-                if (error) {
-                    console.error('Error fetching profile:', error);
-                    showToast('Error loading user data', 'error');
-                    return;
-                }
-                
-                // Update UI with user data
-                document.getElementById('user-tier').textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1) + ' Plan';
-                document.getElementById('user-tier-badge').textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1) + ' Plan';
-                document.getElementById('user-plan').textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1);
-                document.getElementById('current-plan').textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1);
-                document.getElementById('user-name-input').value = profile.full_name || user.email.split('@')[0];
-                document.getElementById('user-job-input').value = profile.job_title || 'Software Developer';
-                
-                // Fetch usage data
-                const { data: usage, error: usageError } = await supabase
-                    .from('usage')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .single();
-                
-                if (usageError) {
-                    console.error('Error fetching usage:', usageError);
-                    // Create usage record if it doesn't exist
-                    const { data: newUsage, error: insertError } = await supabase
-                        .from('usage')
-                        .insert([
-                            { user_id: user.id, resume_usage: 0, letter_usage: 0 }
-                        ])
-                        .select()
-                        .single();
-                    
-                    if (insertError) {
-                        console.error('Error creating usage record:', insertError);
-                        return;
-                    }
-                    
-                    // Update usage stats with new record
-                    updateUsageStats(newUsage.resume_usage, profile.tier === 'pro' ? 999 : 3, newUsage.letter_usage, profile.tier === 'pro' ? 999 : 3);
-                } else {
-                    // Update usage stats with fetched data
-                    updateUsageStats(usage.resume_usage, profile.tier === 'pro' ? 999 : 3, usage.letter_usage, profile.tier === 'pro' ? 999 : 3);
-                }
-                
-                // Set welcome message with user's name
-                welcomeMessage.textContent = `Welcome back, ${profile.full_name || user.email.split('@')[0]}! Ready to boost your job search?`;
-                
-            } catch (error) {
-                console.error('Error in loadUserData:', error);
-                showToast('Error loading user data', 'error');
-            }
-        }
-        
-        // Update usage statistics
-        function updateUsageStats(resumeUsage, resumeLimit, letterUsage, letterLimit) {
-            // Update resume usage
-            document.getElementById('resume-usage').textContent = resumeUsage;
-            document.getElementById('resume-limit').textContent = resumeLimit;
-            document.getElementById('stats-resume-usage').textContent = resumeUsage;
-            document.getElementById('stats-resume-limit').textContent = resumeLimit;
-            document.getElementById('settings-resume-usage').textContent = `${resumeUsage}/${resumeLimit}`;
-            const resumeProgress = (resumeUsage / resumeLimit) * 100;
-            document.getElementById('resume-progress').style.width = `${resumeProgress}%`;
-            document.getElementById('stats-resume-progress').style.width = `${resumeProgress}%`;
-            document.getElementById('settings-resume-progress').style.width = `${resumeProgress}%`;
-            
-            // Update letter usage
-            document.getElementById('letter-usage').textContent = letterUsage;
-            document.getElementById('letter-limit').textContent = letterLimit;
-            document.getElementById('stats-letter-usage').textContent = letterUsage;
-            document.getElementById('stats-letter-limit').textContent = letterLimit;
-            document.getElementById('settings-letter-usage').textContent = `${letterUsage}/${letterLimit}`;
-            const letterProgress = (letterUsage / letterLimit) * 100;
-            document.getElementById('letter-progress').style.width = `${letterProgress}%`;
-            document.getElementById('stats-letter-progress').style.width = `${letterProgress}%`;
-            document.getElementById('settings-letter-progress').style.width = `${letterProgress}%`;
-            
-            // Update button states based on usage
-            document.getElementById('boost-resume-btn').disabled = resumeUsage >= resumeLimit;
-            document.getElementById('generate-letter-btn').disabled = letterUsage >= letterLimit;
-            
-            if (resumeUsage >= resumeLimit) {
-                document.getElementById('boost-resume-btn').classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                document.getElementById('boost-resume-btn').classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-            
-            if (letterUsage >= letterLimit) {
-                document.getElementById('generate-letter-btn').classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                document.getElementById('generate-letter-btn').classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        }
-        
-        // Start the reset timer
-        function startResetTimer() {
-            // Calculate next month's 1st day
-            const today = new Date();
-            const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-            nextMonth.setHours(0, 0, 0, 0);
-            
-            // Update the timer every second
-            setInterval(() => {
-                const now = new Date();
-                const diff = nextMonth - now;
-                
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                
-                document.getElementById('reset-timer').textContent = `${days}d ${hours}h ${minutes}m`;
-            }, 1000);
-        }
-        
-        // Initialize PayPal button
-        function initPayPalButton() {
-            paypal.Buttons({
-                style: {
-                    shape: 'rect',
-                    color: 'blue',
-                    layout: 'vertical',
-                    label: 'subscribe'
-                },
-                createSubscription: function(data, actions) {
-                    return actions.subscription.create({
-                        'plan_id': 'P-3RX065706M9229224L5IFM4I' // Replace with your actual plan ID
-                    });
-                },
-                onApprove: function(data, actions) {
-                    showToast('Subscription completed successfully!', 'success');
-                    
-                    // Update user tier in Supabase
-                    updateUserTier();
-                },
-                onError: function(err) {
-                    showToast('Error processing payment: ' + err, 'error');
-                }
-            }).render('#paypal-button-container');
-        }
-        
-        // Update user tier in Supabase after successful payment
-        async function updateUserTier() {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                const user = session.user;
-                
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .update({ tier: 'pro' })
-                    .eq('id', user.id);
-                
-                if (error) {
-                    console.error('Error updating user tier:', error);
-                    showToast('Error updating account', 'error');
-                    return;
-                }
-                
-                // Update UI to reflect pro tier
-                document.getElementById('user-tier').textContent = 'Pro Plan';
-                document.getElementById('user-tier-badge').textContent = 'Pro Plan';
-                document.getElementById('user-tier-badge').className = 'plan-badge plan-badge-pro';
-                document.getElementById('user-plan').textContent = 'Pro';
-                document.getElementById('current-plan').textContent = 'Pro';
-                
-                // Hide PayPal button after upgrade
-                document.getElementById('paypal-button-container').classList.add('hidden');
-                
-                // Update usage limits
-                updateUsageStats(
-                    parseInt(document.getElementById('resume-usage').textContent),
-                    999,
-                    parseInt(document.getElementById('letter-usage').textContent),
-                    999
-                );
-                
-                showToast('Your account has been upgraded to Pro!', 'success');
-                
-            } catch (error) {
-                console.error('Error in updateUserTier:', error);
-                showToast('Error updating account', 'error');
-            }
-        }
-        
         // Logout function
-        logoutBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const { error } = await supabase.auth.signOut();
-            window.location.href = 'auth.html';
-        });
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const { error } = await supabase.auth.signOut();
+                window.location.href = 'auth.html';
+            });
+        }
         
         // Sample resume button
-        document.getElementById('sample-resume-btn').addEventListener('click', () => {
-            const sampleResume = `John Doe
+        const sampleResumeBtn = document.getElementById('sample-resume-btn');
+        if (sampleResumeBtn) {
+            sampleResumeBtn.addEventListener('click', () => {
+                const resumeInput = document.getElementById('resume-input');
+                if (resumeInput) {
+                    const sampleResume = `John Doe
 Software Developer
 john.doe@email.com | (123) 456-7890 | linkedin.com/in/johndoe | github.com/johndoe
 
@@ -1156,415 +915,914 @@ SKILLS
 - Programming Languages: JavaScript, Python, Java, HTML/CSS
 - Frameworks: React, Node.js, Express, Django
 - Tools: Git, Docker, AWS, MongoDB`;
-            
-            document.getElementById('resume-input').value = sampleResume;
-            showToast('Sample resume loaded!', 'success');
-        });
-        
-        // Sample job description button for resume
-        document.getElementById('sample-job-desc-btn').addEventListener('click', () => {
-            const sampleJob = `Software Developer Job Description
-
-We are looking for a skilled Software Developer to join our innovative team. The ideal candidate will have experience in building high-performing, scalable, enterprise-grade applications.
-
-Responsibilities:
-- Develop, test, and maintain software applications
-- Collaborate with cross-functional teams to define, design, and ship new features
-- Unit-test code for robustness, including edge cases, usability, and general reliability
-- Work on bug fixing and improving application performance
-- Continuously discover, evaluate, and implement new technologies to maximize development efficiency
-
-Requirements:
-- Bachelor's degree in Computer Science or related field
-- 3+ years of software development experience
-- Proficient in JavaScript, HTML, CSS, and front-end frameworks (React, Angular, or Vue)
-- Experience with back-end technologies (Node.js, Python, Java)
-- Familiarity with database technology such as MySQL, MongoDB
-- Excellent problem-solving and communication skills
-
-Preferred Qualifications:
-- Experience with cloud services (AWS, Azure, or GCP)
-- Knowledge of containerization technologies (Docker, Kubernetes)
-- Understanding of agile development methodologies
-- Experience with CI/CD pipelines`;
-            
-            document.getElementById('job-description-resume-input').value = sampleJob;
-            showToast('Sample job description loaded!', 'success');
-        });
-        
-        // Sample job description button for cover letter
-        document.getElementById('sample-job-btn').addEventListener('click', () => {
-            const sampleJob = `Software Developer Job Description
-
-We are looking for a skilled Software Developer to join our innovative team. The ideal candidate will have experience in building high-performing, scalable, enterprise-grade applications.
-
-Responsibilities:
-- Develop, test, and maintain software applications
-- Collaborate with cross-functional teams to define, design, and ship new features
-- Unit-test code for robustness, including edge cases, usability, and general reliability
-- Work on bug fixing and improving application performance
-- Continuously discover, evaluate, and implement new technologies to maximize development efficiency
-
-Requirements:
-- Bachelor's degree in Computer Science or related field
-- 3+ years of software development experience
-- Proficient in JavaScript, HTML, CSS, and front-end frameworks (React, Angular, or Vue)
-- Experience with back-end technologies (Node.js, Python, Java)
-- Familiarity with database technology such as MySQL, MongoDB
-- Excellent problem-solving and communication skills
-
-Preferred Qualifications:
-- Experience with cloud services (AWS, Azure, or GCP)
-- Knowledge of containerization technologies (Docker, Kubernetes)
-- Understanding of agile development methodologies
-- Experience with CI/CD pipelines`;
-            
-            document.getElementById('job-description-input').value = sampleJob;
-            showToast('Sample job description loaded!', 'success');
-        });
-        
-        // Resume boost functionality
-        document.getElementById('boost-resume-btn').addEventListener('click', async () => {
-            const resumeText = document.getElementById('resume-input').value.trim();
-            const jobDescription = document.getElementById('job-description-resume-input').value.trim();
-            const industry = document.getElementById('resume-industry').value;
-            const experienceLevel = document.getElementById('resume-experience').value;
-            
-            if (!resumeText) {
-                showToast('Please paste your resume first', 'error');
-                return;
-            }
-            
-            // Show loading state
-            showLoading('Enhancing your resume with AI...');
-            const button = document.getElementById('boost-resume-btn');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            button.disabled = true;
-            
-            try {
-                // Get current user
-                const { data: { session } } = await supabase.auth.getSession();
-                const user = session.user;
-                
-                // In a real app, this would call a Supabase Edge Function
-                // For demo purposes, we're simulating an API call
-                setTimeout(async () => {
-                    // Extract keywords from job description for tailoring
-                    let jobSpecificEnhancements = '';
-                    if (jobDescription) {
-                        if (jobDescription.includes('React') || jobDescription.includes('JavaScript')) {
-                            jobSpecificEnhancements += '<li>Emphasized React and JavaScript experience to match job requirements</li>';
-                        }
-                        if (jobDescription.includes('Node.js') || jobDescription.includes('backend')) {
-                            jobSpecificEnhancements += '<li>Highlighted Node.js and backend development skills</li>';
-                        }
-                        if (jobDescription.includes('cloud') || jobDescription.includes('AWS')) {
-                            jobSpecificEnhancements += '<li>Added cloud and AWS experience mentioned in job description</li>';
-                        }
-                        if (jobDescription.includes('agile') || jobDescription.includes('scrum')) {
-                            jobSpecificEnhancements += '<li>Emphasized agile methodology experience</li>';
-                        }
-                    }
                     
-                    // Simulate improved resume
-                    const improvedResume = `
-                        <h3 class="text-lg font-semibold mb-2">JOHN DOE</h3>
-                        <p class="text-primary font-medium mb-4">Software Developer</p>
-                        <p class="mb-4">john.doe@email.com | (123) 456-7890 | linkedin.com/in/johndoe | github.com/johndoe</p>
-                        
-                        <h4 class="font-semibold mt-6 mb-2">PROFESSIONAL SUMMARY</h4>
-                        <p class="mb-4">Results-driven Software Developer with 5+ years of experience in full-stack web development. Expertise in JavaScript, React, Node.js, and Python with a proven track record of delivering scalable applications that improve efficiency by 30%. ${industry ? `Specialized in the ${industry} industry.` : ''} ${experienceLevel ? `Seeking ${experienceLevel} opportunities to leverage technical skills.` : ''}</p>
-                        
-                        <h4 class="font-semibold mt-6 mb-2">TECHNICAL EXPERIENCE</h4>
-                        <div class="mb-2">
-                            <p class="font-medium">Software Developer | ABC Tech | Jan 2020 - Present</p>
-                            <ul class="list-disc pl-5 mt-1">
-                                <li>Engineered and optimized 15+ web applications using React and Node.js, improving performance by 35%</li>
-                                <li>Developed RESTful APIs that enhanced data retrieval efficiency by 30%, reducing latency</li>
-                                <li>Led cross-functional teams in agile environment to deliver 4 major projects 2 weeks ahead of schedule</li>
-                                <li>Implemented automated testing that reduced bugs by 40% in production</li>
-                            </ul>
-                        </div>
-                        <div class="mb-4">
-                            <p class="font-medium">Junior Developer | XYZ Solutions | Jun 2018 - Dec 2019</p>
-                            <ul class="list-disc pl-5 mt-1">
-                                <li>Developed 10+ customer-facing features that improved user engagement by 25%</li>
-                                <li>Resolved 50+ bug reports, improving application stability</li>
-                                <li>Participated in code reviews, maintaining 99% code quality standards</li>
-                            </ul>
-                        </div>
-                        
-                        <h4 class="font-semibold mt-6 mb-2">EDUCATION</h4>
-                        <p class="mb-4">Bachelor of Science in Computer Science | University of Technology | May 2018</p>
-                        
-                        <h4 class="font-semibold mt-6 mb-2">TECHNICAL SKILLS</h4>
-                        <ul class="list-disc pl-5 mb-2">
-                            <li><span class="font-medium">Programming Languages:</span> JavaScript, Python, Java, HTML5/CSS3</li>
-                            <li><span class="font-medium">Frameworks & Libraries:</span> React, Node.js, Express, Django, Angular</li>
-                            <li><span class="font-medium">Tools & Technologies:</span> Git, Docker, AWS, MongoDB, MySQL, CI/CD</li>
-                            <li><span class="font-medium">Methodologies:</span> Agile, Scrum, Test-Driven Development</li>
-                        </ul>
-                        
-                        <div class="p-3 bg-blue-50 rounded-lg border border-blue-100 mt-6">
-                            <p class="font-semibold text-blue-800">AI ENHANCEMENTS APPLIED:</p>
-                            <ul class="list-disc pl-5 mt-2 text-blue-700">
-                                <li>Quantified achievements with metrics (35% performance improvement, 40% bug reduction)</li>
-                                <li>Enhanced action verbs (Engineered, Developed, Led, Implemented)</li>
-                                <li>Optimized skills section with relevant keywords</li>
-                                <li>Improved formatting for ATS compatibility</li>
-                                ${industry ? `<li>Tailored content for ${industry} industry</li>` : ''}
-                                ${experienceLevel ? `<li>Adjusted for ${experienceLevel} level position</li>` : ''}
-                                ${jobSpecificEnhancements || '<li>Tailored to match job description keywords</li>'}
-                            </ul>
-                        </div>
-                    `;
-                    
-                    // Show result
-                    document.getElementById('resume-output').innerHTML = improvedResume;
-                    document.getElementById('resume-result').classList.remove('hidden');
-                    
-                    // Update usage in Supabase
-                    const { data: usage, error: usageError } = await supabase
-                        .from('usage')
-                        .select('resume_usage')
-                        .eq('user_id', user.id)
-                        .single();
-                    
-                    if (!usageError) {
-                        const newResumeUsage = usage.resume_usage + 1;
-                        
-                        const { error: updateError } = await supabase
-                            .from('usage')
-                            .update({ resume_usage: newResumeUsage })
-                            .eq('user_id', user.id);
-                        
-                        if (!updateError) {
-                            // Get user tier to determine limits
-                            const { data: profile } = await supabase
-                                .from('profiles')
-                                .select('tier')
-                                .eq('id', user.id)
-                                .single();
-                            
-                            const resumeLimit = profile.tier === 'pro' ? 999 : 3;
-                            updateUsageStats(newResumeUsage, resumeLimit, usage.letter_usage, profile.tier === 'pro' ? 999 : 3);
-                        }
-                    }
-                    
-                    // Reset button
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                    
-                    hideLoading();
-                    showToast('Resume successfully enhanced!', 'success');
-                    
-                    // Scroll to results
-                    document.getElementById('resume-result').scrollIntoView({ behavior: 'smooth' });
-                }, 3000);
-            } catch (error) {
-                hideLoading();
-                showToast('Error boosting resume: ' + error.message, 'error');
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }
-        });
-        
-        // Cover letter generation functionality
-        document.getElementById('generate-letter-btn').addEventListener('click', async () => {
-            const jobDescription = document.getElementById('job-description-input').value.trim();
-            const companyName = document.getElementById('company-name').value;
-            const tone = document.getElementById('letter-tone').value;
-            
-            if (!jobDescription) {
-                showToast('Please paste the job description first', 'error');
-                return;
-            }
-            
-            // Show loading state
-            showLoading('Generating your cover letter...');
-            const button = document.getElementById('generate-letter-btn');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-            button.disabled = true;
-            
-            try {
-                // Get current user
-                const { data: { session } } = await supabase.auth.getSession();
-                const user = session.user;
-                
-                // In a real app, this would call a Supabase Edge Function
-                // For demo purposes, we're simulating an API call
-                setTimeout(async () => {
-                    // Extract company name from job description if not provided
-                    const extractedCompany = companyName || extractCompanyName(jobDescription);
-                    
-                    // Extract keywords for personalization
-                    const keywords = extractKeywords(jobDescription);
-                    let keywordHighlights = '';
-                    
-                    if (keywords.includes('react')) keywordHighlights += 'React, ';
-                    if (keywords.includes('javascript')) keywordHighlights += 'JavaScript, ';
-                    if (keywords.includes('node')) keywordHighlights += 'Node.js, ';
-                    if (keywords.includes('python')) keywordHighlights += 'Python, ';
-                    if (keywords.includes('aws')) keywordHighlights += 'AWS, ';
-                    if (keywords.includes('agile')) keywordHighlights += 'Agile methodologies, ';
-                    
-                    if (keywordHighlights) {
-                        keywordHighlights = keywordHighlights.slice(0, -2); // Remove trailing comma
-                    }
-                    
-                    // Simulate generated cover letter
-                    const coverLetter = `
-                        <p class="text-right">${new Date().toLocaleDateString()}</p>
-                        
-                        <p class="mt-6">Dear Hiring Manager,</p>
-                        
-                        <p class="my-3">I am writing to express my enthusiastic interest in the Software Developer position ${extractedCompany ? `at ${extractedCompany}` : 'with your company'}, which I discovered through your recent job posting. With over 5 years of experience in full-stack JavaScript development, I have successfully built and deployed 15+ web applications that improved performance by 35% and reduced bugs by 40%.</p>
-                        
-                        <p class="my-3">My expertise in ${keywordHighlights || 'React, Node.js, and modern development practices'} aligns perfectly with the requirements outlined in your job description. In my previous role at ABC Tech, I engineered RESTful APIs that enhanced data retrieval efficiency by 30% and led cross-functional teams to deliver projects ahead of schedule.</p>
-                        
-                        <p class="my-3">I am particularly drawn to ${extractedCompany ? `${extractedCompany}'s` : 'your company\'s'} focus on innovative solutions and believe my technical skills and collaborative approach would make me a valuable asset to your team. I am excited about the opportunity to contribute to your development efforts and help drive ${extractedCompany ? `${extractedCompany}'s` : 'your'} technological innovation forward.</p>
-                        
-                        <p class="my-3">Thank you for considering my application. I have attached my resume for your review and would welcome the opportunity to discuss how my experience and skills can benefit ${extractedCompany ? `${extractedCompany}` : 'your organization'}.</p>
-                        
-                        <p>Sincerely,<br>
-                        John Doe<br>
-                        Software Developer<br>
-                        john.doe@email.com | (123) 456-7890</p>
-                        
-                        <div class="p-3 bg-green-50 rounded-lg border border-green-100 mt-6">
-                            <p class="font-semibold text-green-800">AI ENHANCEMENTS APPLIED:</p>
-                            <ul class="list-disc pl-5 mt-2 text-green-700">
-                                <li>Tailored to match the job description keywords and requirements</li>
-                                <li>Highlighted relevant experience with quantifiable achievements</li>
-                                <li>Adjusted tone to be ${tone}</li>
-                                ${extractedCompany ? `<li>Personalized for ${extractedCompany}</li>` : ''}
-                                <li>Professional formatting and structure optimized for recruiters</li>
-                                ${keywordHighlights ? `<li>Emphasized ${keywordHighlights} skills mentioned in job description</li>` : ''}
-                            </ul>
-                        </div>
-                    `;
-                    
-                    // Show result
-                    document.getElementById('letter-output').innerHTML = coverLetter;
-                    document.getElementById('letter-result').classList.remove('hidden');
-                    
-                    // Update usage in Supabase
-                    const { data: usage, error: usageError } = await supabase
-                        .from('usage')
-                        .select('letter_usage')
-                        .eq('user_id', user.id)
-                        .single();
-                    
-                    if (!usageError) {
-                        const newLetterUsage = usage.letter_usage + 1;
-                        
-                        const { error: updateError } = await supabase
-                            .from('usage')
-                            .update({ letter_usage: newLetterUsage })
-                            .eq('user_id', user.id);
-                        
-                        if (!updateError) {
-                            // Get user tier to determine limits
-                            const { data: profile } = await supabase
-                                .from('profiles')
-                                .select('tier')
-                                .eq('id', user.id)
-                                .single();
-                            
-                            const letterLimit = profile.tier === 'pro' ? 999 : 3;
-                            updateUsageStats(usage.resume_usage, profile.tier === 'pro' ? 999 : 3, newLetterUsage, letterLimit);
-                        }
-                    }
-                    
-                    // Reset button
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                    
-                    hideLoading();
-                    showToast('Cover letter generated successfully!', 'success');
-                    
-                    // Scroll to results
-                    document.getElementById('letter-result').scrollIntoView({ behavior: 'smooth' });
-                }, 3000);
-            } catch (error) {
-                hideLoading();
-                showToast('Error generating cover letter: ' + error.message, 'error');
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }
-        });
-        
-        // Helper function to extract company name from job description
-        function extractCompanyName(jobDescription) {
-            // This is a simple implementation - in a real app, you'd use more sophisticated NLP
-            const lines = jobDescription.split('\n');
-            for (const line of lines) {
-                if (line.toLowerCase().includes('company:') || line.toLowerCase().includes('about us:')) {
-                    return line.split(':')[1].trim();
+                    resumeInput.value = sampleResume;
+                    showToast('Sample resume loaded!', 'success');
                 }
-            }
-            return null;
+            });
         }
         
-        // Helper function to extract keywords from job description
-        function extractKeywords(jobDescription) {
-            const keywords = [];
-            const text = jobDescription.toLowerCase();
-            
-            if (text.includes('react') || text.includes('javascript')) keywords.push('react');
-            if (text.includes('node') || text.includes('backend')) keywords.push('node');
-            if (text.includes('python')) keywords.push('python');
-            if (text.includes('aws') || text.includes('cloud')) keywords.push('aws');
-            if (text.includes('agile') || text.includes('scrum')) keywords.push('agile');
-            if (text.includes('docker') || text.includes('kubernetes')) keywords.push('docker');
-            if (text.includes('mysql') || text.includes('database')) keywords.push('database');
-            
-            return keywords;
+        // Sample job description button for resume
+        const sampleJobDescBtn = document.getElementById('sample-job-desc-btn');
+        if (sampleJobDescBtn) {
+            sampleJobDescBtn.addEventListener('click', () => {
+                const jobInput = document.getElementById('job-description-resume-input');
+                if (jobInput) {
+                    const sampleJob = `Software Developer Job Description
+
+We are looking for a skilled Software Developer to join our innovative team. The ideal candidate will have experience in building high-performing, scalable, enterprise-grade applications.
+
+Responsibilities:
+- Develop, test, and maintain software applications
+- Collaborate with cross-functional teams to define, design, and ship new features
+- Unit-test code for robustness, including edge cases, usability, and general reliability
+- Work on bug fixing and improving application performance
+- Continuously discover, evaluate, and implement new technologies to maximize development efficiency
+
+Requirements:
+- Bachelor's degree in Computer Science or related field
+- 3+ years of software development experience
+- Proficient in JavaScript, HTML, CSS, and front-end frameworks (React, Angular, or Vue)
+- Experience with back-end technologies (Node.js, Python, Java)
+- Familiarity with database technology such as MySQL, MongoDB
+- Excellent problem-solving and communication skills
+
+Preferred Qualifications:
+- Experience with cloud services (AWS, Azure, or GCP)
+- Knowledge of containerization technologies (Docker, Kubernetes)
+- Understanding of agile development methodologies
+- Experience with CI/CD pipelines`;
+                    
+                    jobInput.value = sampleJob;
+                    showToast('Sample job description loaded!', 'success');
+                }
+            });
+        }
+        
+        // Sample job description button for cover letter
+        const sampleJobBtn = document.getElementById('sample-job-btn');
+        if (sampleJobBtn) {
+            sampleJobBtn.addEventListener('click', () => {
+                const jobInput = document.getElementById('job-description-input');
+                if (jobInput) {
+                    const sampleJob = `Software Developer Job Description
+
+We are looking for a skilled Software Developer to join our innovative team. The ideal candidate will have experience in building high-performing, scalable, enterprise-grade applications.
+
+Responsibilities:
+- Develop, test, and maintain software applications
+- Collaborate with cross-functional teams to define, design, and ship new features
+- Unit-test code for robustness, including edge cases, usability, and general reliability
+- Work on bug fixing and improving application performance
+- Continuously discover, evaluate, and implement new technologies to maximize development efficiency
+
+Requirements:
+- Bachelor's degree in Computer Science or related field
+- 3+ years of software development experience
+- Proficient in JavaScript, HTML, CSS, and front-end frameworks (React, Angular, or Vue)
+- Experience with back-end technologies (Node.js, Python, Java)
+- Familiarity with database technology such as MySQL, MongoDB
+- Excellent problem-solving and communication skills
+
+Preferred Qualifications:
+- Experience with cloud services (AWS, Azure, or GCP)
+- Knowledge of containerization technologies (Docker, Kubernetes)
+- Understanding of agile development methodologies
+- Experience with CI/CD pipelines`;
+                    
+                    jobInput.value = sampleJob;
+                    showToast('Sample job description loaded!', 'success');
+                }
+            });
+        }
+        
+        // Resume boost functionality
+        const boostResumeBtn = document.getElementById('boost-resume-btn');
+        if (boostResumeBtn) {
+            boostResumeBtn.addEventListener('click', boostResume);
+        }
+        
+        // Cover letter generation functionality
+        const generateLetterBtn = document.getElementById('generate-letter-btn');
+        if (generateLetterBtn) {
+            generateLetterBtn.addEventListener('click', generateCoverLetter);
         }
         
         // Copy resume to clipboard
-        document.getElementById('copy-resume-btn').addEventListener('click', () => {
-            const resumeText = document.getElementById('resume-output').textContent;
-            navigator.clipboard.writeText(resumeText).then(() => {
-                showToast('Resume copied to clipboard!', 'success');
+        const copyResumeBtn = document.getElementById('copy-resume-btn');
+        if (copyResumeBtn) {
+            copyResumeBtn.addEventListener('click', () => {
+                const resumeOutput = document.getElementById('resume-output');
+                if (resumeOutput) {
+                    const resumeText = resumeOutput.textContent;
+                    navigator.clipboard.writeText(resumeText).then(() => {
+                        showToast('Resume copied to clipboard!', 'success');
+                    });
+                }
             });
-        });
+        }
         
         // Copy cover letter to clipboard
-        document.getElementById('copy-letter-btn').addEventListener('click', () => {
-            const letterText = document.getElementById('letter-output').textContent;
-            navigator.clipboard.writeText(letterText).then(() => {
-                showToast('Cover letter copied to clipboard!', 'success');
+        const copyLetterBtn = document.getElementById('copy-letter-btn');
+        if (copyLetterBtn) {
+            copyLetterBtn.addEventListener('click', () => {
+                const letterOutput = document.getElementById('letter-output');
+                if (letterOutput) {
+                    const letterText = letterOutput.textContent;
+                    navigator.clipboard.writeText(letterText).then(() => {
+                        showToast('Cover letter copied to clipboard!', 'success');
+                    });
+                }
             });
-        });
+        }
         
         // Download resume as PDF (simulated)
-        document.getElementById('download-resume-btn').addEventListener('click', () => {
-            showToast('Download feature would generate a PDF in a real application', 'info');
-        });
+        const downloadResumeBtn = document.getElementById('download-resume-btn');
+        if (downloadResumeBtn) {
+            downloadResumeBtn.addEventListener('click', () => {
+                showToast('Download feature would generate a PDF in a real application', 'info');
+            });
+        }
         
         // Download cover letter as PDF (simulated)
-        document.getElementById('download-letter-btn').addEventListener('click', () => {
-            showToast('Download feature would generate a PDF in a real application', 'info');
-        });
+        const downloadLetterBtn = document.getElementById('download-letter-btn');
+        if (downloadLetterBtn) {
+            downloadLetterBtn.addEventListener('click', () => {
+                showToast('Download feature would generate a PDF in a real application', 'info');
+            });
+        }
         
         // Save resume functionality
-        document.getElementById('save-resume-btn').addEventListener('click', async () => {
-            // In a real app, this would save to the resumes table in Supabase
-            showLoading('Saving your resume...');
-            const button = document.getElementById('save-resume-btn');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        const saveResumeBtn = document.getElementById('save-resume-btn');
+        if (saveResumeBtn) {
+            saveResumeBtn.addEventListener('click', saveResume);
+        }
+        
+        // Save cover letter functionality
+        const saveLetterBtn = document.getElementById('save-letter-btn');
+        if (saveLetterBtn) {
+            saveLetterBtn.addEventListener('click', saveCoverLetter);
+        }
+        
+        // Regenerate buttons
+        const regenerateResumeBtn = document.getElementById('regenerate-resume-btn');
+        if (regenerateResumeBtn) {
+            regenerateResumeBtn.addEventListener('click', () => {
+                showToast('This would regenerate the resume with different improvements', 'info');
+            });
+        }
+        
+        const regenerateLetterBtn = document.getElementById('regenerate-letter-btn');
+        if (regenerateLetterBtn) {
+            regenerateLetterBtn.addEventListener('click', () => {
+                showToast('This would regenerate the cover letter with a different approach', 'info');
+            });
+        }
+        
+        // Upgrade plan functionality
+        const upgradeBtn = document.getElementById('upgrade-btn');
+        if (upgradeBtn) {
+            upgradeBtn.addEventListener('click', () => {
+                const paypalContainer = document.getElementById('paypal-button-container');
+                if (paypalContainer) paypalContainer.classList.toggle('hidden');
+            });
+        }
+        
+        const manageSubscriptionBtn = document.getElementById('manage-subscription-btn');
+        if (manageSubscriptionBtn) {
+            manageSubscriptionBtn.addEventListener('click', () => {
+                const paypalContainer = document.getElementById('paypal-button-container');
+                if (paypalContainer) paypalContainer.classList.toggle('hidden');
+            });
+        }
+        
+        // Save profile functionality
+        const saveProfileBtn = document.getElementById('save-profile-btn');
+        if (saveProfileBtn) {
+            saveProfileBtn.addEventListener('click', saveProfile);
+        }
+        
+        // Filter and sort dropdowns
+        const filterBtn = document.getElementById('filter-btn');
+        const filterDropdown = document.getElementById('filter-dropdown');
+        const sortBtn = document.getElementById('sort-btn');
+        const sortDropdown = document.getElementById('sort-dropdown');
+        
+        if (filterBtn && filterDropdown) {
+            filterBtn.addEventListener('click', () => {
+                filterDropdown.classList.toggle('hidden');
+                if (sortDropdown) sortDropdown.classList.add('hidden');
+            });
+        }
+        
+        if (sortBtn && sortDropdown) {
+            sortBtn.addEventListener('click', () => {
+                sortDropdown.classList.toggle('hidden');
+                if (filterDropdown) filterDropdown.classList.add('hidden');
+            });
+        }
+        
+        // Close dropdowns when clicking elsewhere
+        document.addEventListener('click', (e) => {
+            if (filterBtn && filterDropdown && !e.target.closest('#filter-btn') && !e.target.closest('#filter-dropdown')) {
+                filterDropdown.classList.add('hidden');
+            }
+            if (sortBtn && sortDropdown && !e.target.closest('#sort-btn') && !e.target.closest('#sort-dropdown')) {
+                sortDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', toggleTheme);
+        }
+    }
+    
+    // Update welcome message based on active tab
+    function updateWelcomeMessage(tab) {
+        const messages = {
+            'resume': 'Ready to boost your resume for that dream job?',
+            'cover-letter': 'Create the perfect cover letter for your application',
+            'documents': 'Manage your saved resumes and cover letters',
+            'settings': 'Manage your account settings and subscription'
+        };
+        
+        if (welcomeMessage) {
+            welcomeMessage.textContent = messages[tab] || 'Welcome back! Ready to boost your job search?';
+        }
+    }
+    
+    // Show toast notification
+    function showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) return;
+        
+        const toast = document.createElement('div');
+        toast.className = `p-4 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`;
+        toast.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        // Remove toast after 5 seconds
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s';
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
+    }
+    
+    // Show loading overlay
+    function showLoading(message = 'Processing your request...') {
+        if (loadingText) loadingText.textContent = message;
+        if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+    }
+    
+    // Hide loading overlay
+    function hideLoading() {
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+    }
+    
+    // Check authentication status
+    async function checkAuth() {
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
             
-            setTimeout(() => {
-                hideLoading();
-                showToast('Resume saved successfully!', 'success');
-                button.innerHTML = originalText;
+            if (!session) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            // Set user info with null checks
+            const user = session.user;
+            const userEmailElement = document.getElementById('user-email');
+            const userInitialElement = document.getElementById('user-initial');
+            const userEmailInput = document.getElementById('user-email-input');
+            
+            if (userEmailElement) userEmailElement.textContent = user.email;
+            if (userInitialElement) userInitialElement.textContent = user.email.charAt(0).toUpperCase();
+            if (userEmailInput) userEmailInput.value = user.email;
+            
+            // Load user data (subscription tier, usage, etc.)
+            await loadUserData(user);
+            
+            // Start the reset timer
+            startResetTimer();
+            
+            // Initialize PayPal button if user is on free plan
+            const userTierBadge = document.getElementById('user-tier-badge');
+            if (userTierBadge && userTierBadge.textContent === 'Free Plan') {
+                initPayPalButton();
+            }
+        } catch (error) {
+            console.error('Error in checkAuth:', error);
+        }
+    }
+    
+    // Load user data from Supabase
+    async function loadUserData(user) {
+        try {
+            // Fetch user profile from Supabase
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+            
+            if (error) {
+                console.error('Error fetching profile:', error);
+                showToast('Error loading user data', 'error');
+                return;
+            }
+            
+            // Update UI with user data with null checks
+            const userTierElement = document.getElementById('user-tier');
+            const userTierBadge = document.getElementById('user-tier-badge');
+            const userPlanElement = document.getElementById('user-plan');
+            const currentPlanElement = document.getElementById('current-plan');
+            const userNameInput = document.getElementById('user-name-input');
+            const userJobInput = document.getElementById('user-job-input');
+            
+            if (userTierElement) userTierElement.textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1) + ' Plan';
+            if (userTierBadge) {
+                userTierBadge.textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1) + ' Plan';
+                userTierBadge.className = profile.tier === 'pro' ? 'plan-badge plan-badge-pro' : 'plan-badge plan-badge-free';
+            }
+            if (userPlanElement) userPlanElement.textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1);
+            if (currentPlanElement) currentPlanElement.textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1);
+            if (userNameInput) userNameInput.value = profile.full_name || user.email.split('@')[0];
+            if (userJobInput) userJobInput.value = profile.job_title || 'Software Developer';
+            
+            // Fetch usage data
+            const { data: usage, error: usageError } = await supabase
+                .from('usage')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+            
+            if (usageError) {
+                console.error('Error fetching usage:', usageError);
+                // Create usage record if it doesn't exist
+                const { data: newUsage, error: insertError } = await supabase
+                    .from('usage')
+                    .insert([
+                        { user_id: user.id, resume_usage: 0, letter_usage: 0 }
+                    ])
+                    .select()
+                    .single();
                 
-                // Add to documents list
-                const documentsList = document.getElementById('documents-list');
+                if (insertError) {
+                    console.error('Error creating usage record:', insertError);
+                    return;
+                }
+                
+                // Update usage stats with new record
+                updateUsageStats(newUsage.resume_usage, profile.tier === 'pro' ? 999 : 3, newUsage.letter_usage, profile.tier === 'pro' ? 999 : 3);
+            } else {
+                // Update usage stats with fetched data
+                updateUsageStats(usage.resume_usage, profile.tier === 'pro' ? 999 : 3, usage.letter_usage, profile.tier === 'pro' ? 999 : 3);
+            }
+            
+            // Set welcome message with user's name
+            if (welcomeMessage) {
+                welcomeMessage.textContent = `Welcome back, ${profile.full_name || user.email.split('@')[0]}! Ready to boost your job search?`;
+            }
+        } catch (error) {
+            console.error('Error in loadUserData:', error);
+            showToast('Error loading user data', 'error');
+        }
+    }
+    
+    // Update usage statistics
+    function updateUsageStats(resumeUsage, resumeLimit, letterUsage, letterLimit) {
+        // Update resume usage
+        const resumeUsageElement = document.getElementById('resume-usage');
+        const resumeLimitElement = document.getElementById('resume-limit');
+        const statsResumeUsageElement = document.getElementById('stats-resume-usage');
+        const statsResumeLimitElement = document.getElementById('stats-resume-limit');
+        const settingsResumeUsageElement = document.getElementById('settings-resume-usage');
+        const resumeProgressElement = document.getElementById('resume-progress');
+        const statsResumeProgressElement = document.getElementById('stats-resume-progress');
+        const settingsResumeProgressElement = document.getElementById('settings-resume-progress');
+        
+        if (resumeUsageElement) resumeUsageElement.textContent = resumeUsage;
+        if (resumeLimitElement) resumeLimitElement.textContent = resumeLimit;
+        if (statsResumeUsageElement) statsResumeUsageElement.textContent = resumeUsage;
+        if (statsResumeLimitElement) statsResumeLimitElement.textContent = resumeLimit;
+        if (settingsResumeUsageElement) settingsResumeUsageElement.textContent = `${resumeUsage}/${resumeLimit}`;
+        
+        const resumeProgress = (resumeUsage / resumeLimit) * 100;
+        if (resumeProgressElement) resumeProgressElement.style.width = `${resumeProgress}%`;
+        if (statsResumeProgressElement) statsResumeProgressElement.style.width = `${resumeProgress}%`;
+        if (settingsResumeProgressElement) settingsResumeProgressElement.style.width = `${resumeProgress}%`;
+        
+        // Update letter usage
+        const letterUsageElement = document.getElementById('letter-usage');
+        const letterLimitElement = document.getElementById('letter-limit');
+        const statsLetterUsageElement = document.getElementById('stats-letter-usage');
+        const statsLetterLimitElement = document.getElementById('stats-letter-limit');
+        const settingsLetterUsageElement = document.getElementById('settings-letter-usage');
+        const letterProgressElement = document.getElementById('letter-progress');
+        const statsLetterProgressElement = document.getElementById('stats-letter-progress');
+        const settingsLetterProgressElement = document.getElementById('settings-letter-progress');
+        
+        if (letterUsageElement) letterUsageElement.textContent = letterUsage;
+        if (letterLimitElement) letterLimitElement.textContent = letterLimit;
+        if (statsLetterUsageElement) statsLetterUsageElement.textContent = letterUsage;
+        if (statsLetterLimitElement) statsLetterLimitElement.textContent = letterLimit;
+        if (settingsLetterUsageElement) settingsLetterUsageElement.textContent = `${letterUsage}/${letterLimit}`;
+        
+        const letterProgress = (letterUsage / letterLimit) * 100;
+        if (letterProgressElement) letterProgressElement.style.width = `${letterProgress}%`;
+        if (statsLetterProgressElement) statsLetterProgressElement.style.width = `${letterProgress}%`;
+        if (settingsLetterProgressElement) settingsLetterProgressElement.style.width = `${letterProgress}%`;
+        
+        // Update button states based on usage
+        const boostResumeBtn = document.getElementById('boost-resume-btn');
+        const generateLetterBtn = document.getElementById('generate-letter-btn');
+        
+        if (boostResumeBtn) {
+            boostResumeBtn.disabled = resumeUsage >= resumeLimit;
+            if (resumeUsage >= resumeLimit) {
+                boostResumeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                boostResumeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        if (generateLetterBtn) {
+            generateLetterBtn.disabled = letterUsage >= letterLimit;
+            if (letterUsage >= letterLimit) {
+                generateLetterBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                generateLetterBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+    }
+    
+    // Start the reset timer
+    function startResetTimer() {
+        // Calculate next month's 1st day
+        const today = new Date();
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        nextMonth.setHours(0, 0, 0, 0);
+        
+        // Update the timer every second
+        setInterval(() => {
+            const now = new Date();
+            const diff = nextMonth - now;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            const resetTimerElement = document.getElementById('reset-timer');
+            if (resetTimerElement) resetTimerElement.textContent = `${days}d ${hours}h ${minutes}m`;
+        }, 1000);
+    }
+    
+    // Initialize PayPal button
+    function initPayPalButton() {
+        if (typeof paypal === 'undefined') {
+            console.error('PayPal SDK not loaded');
+            return;
+        }
+        
+        const paypalContainer = document.getElementById('paypal-button-container');
+        if (!paypalContainer) return;
+        
+        paypal.Buttons({
+            style: {
+                shape: 'rect',
+                color: 'blue',
+                layout: 'vertical',
+                label: 'subscribe'
+            },
+            createSubscription: function(data, actions) {
+                return actions.subscription.create({
+                    'plan_id': 'P-3RX065706M9229224L5IFM4I' // Replace with your actual plan ID
+                });
+            },
+            onApprove: function(data, actions) {
+                showToast('Subscription completed successfully!', 'success');
+                
+                // Update user tier in Supabase
+                updateUserTier();
+            },
+            onError: function(err) {
+                showToast('Error processing payment: ' + err, 'error');
+            }
+        }).render('#paypal-button-container');
+    }
+    
+    // Update user tier in Supabase after successful payment
+    async function updateUserTier() {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const user = session.user;
+            
+            const { data, error } = await supabase
+                .from('profiles')
+                .update({ tier: 'pro' })
+                .eq('id', user.id);
+            
+            if (error) {
+                console.error('Error updating user tier:', error);
+                showToast('Error updating account', 'error');
+                return;
+            }
+            
+            // Update UI to reflect pro tier
+            const userTierElement = document.getElementById('user-tier');
+            const userTierBadge = document.getElementById('user-tier-badge');
+            const userPlanElement = document.getElementById('user-plan');
+            const currentPlanElement = document.getElementById('current-plan');
+            const paypalContainer = document.getElementById('paypal-button-container');
+            
+            if (userTierElement) userTierElement.textContent = 'Pro Plan';
+            if (userTierBadge) {
+                userTierBadge.textContent = 'Pro Plan';
+                userTierBadge.className = 'plan-badge plan-badge-pro';
+            }
+            if (userPlanElement) userPlanElement.textContent = 'Pro';
+            if (currentPlanElement) currentPlanElement.textContent = 'Pro';
+            
+            // Hide PayPal button after upgrade
+            if (paypalContainer) paypalContainer.classList.add('hidden');
+            
+            // Update usage limits
+            const resumeUsage = parseInt(document.getElementById('resume-usage').textContent);
+            const letterUsage = parseInt(document.getElementById('letter-usage').textContent);
+            updateUsageStats(resumeUsage, 999, letterUsage, 999);
+            
+            showToast('Your account has been upgraded to Pro!', 'success');
+            
+        } catch (error) {
+            console.error('Error in updateUserTier:', error);
+            showToast('Error updating account', 'error');
+        }
+    }
+    
+    // Resume boost functionality
+    async function boostResume() {
+        const resumeInput = document.getElementById('resume-input');
+        const jobDescriptionInput = document.getElementById('job-description-resume-input');
+        
+        if (!resumeInput) {
+            showToast('Resume input element not found', 'error');
+            return;
+        }
+        
+        const resumeText = resumeInput.value.trim();
+        const jobDescription = jobDescriptionInput ? jobDescriptionInput.value.trim() : '';
+        const industry = document.getElementById('resume-industry') ? document.getElementById('resume-industry').value : '';
+        const experienceLevel = document.getElementById('resume-experience') ? document.getElementById('resume-experience').value : '';
+        
+        if (!resumeText) {
+            showToast('Please paste your resume first', 'error');
+            return;
+        }
+        
+        // Show loading state
+        showLoading('Enhancing your resume with AI...');
+        const button = document.getElementById('boost-resume-btn');
+        if (!button) {
+            hideLoading();
+            return;
+        }
+        
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        button.disabled = true;
+        
+        try {
+            // Get current user
+            const { data: { session } } = await supabase.auth.getSession();
+            const user = session.user;
+            
+            // In a real app, this would call a Supabase Edge Function
+            // For demo purposes, we're simulating an API call
+            setTimeout(async () => {
+                // Extract keywords from job description for tailoring
+                let jobSpecificEnhancements = '';
+                if (jobDescription) {
+                    if (jobDescription.includes('React') || jobDescription.includes('JavaScript')) {
+                        jobSpecificEnhancements += '<li>Emphasized React and JavaScript experience to match job requirements</li>';
+                    }
+                    if (jobDescription.includes('Node.js') || jobDescription.includes('backend')) {
+                        jobSpecificEnhancements += '<li>Highlighted Node.js and backend development skills</li>';
+                    }
+                    if (jobDescription.includes('cloud') || jobDescription.includes('AWS')) {
+                        jobSpecificEnhancements += '<li>Added cloud and AWS experience mentioned in job description</li>';
+                    }
+                    if (jobDescription.includes('agile') || jobDescription.includes('scrum')) {
+                        jobSpecificEnhancements += '<li>Emphasized agile methodology experience</li>';
+                    }
+                }
+                
+                // Simulate improved resume
+                const improvedResume = `
+                    <h3 class="text-lg font-semibold mb-2">JOHN DOE</h3>
+                    <p class="text-primary font-medium mb-4">Software Developer</p>
+                    <p class="mb-4">john.doe@email.com | (123) 456-7890 | linkedin.com/in/johndoe | github.com/johndoe</p>
+                    
+                    <h4 class="font-semibold mt-6 mb-2">PROFESSIONAL SUMMARY</h4>
+                    <p class="mb-4">Results-driven Software Developer with 5+ years of experience in full-stack web development. Expertise in JavaScript, React, Node.js, and Python with a proven track record of delivering scalable applications that improve efficiency by 30%. ${industry ? `Specialized in the ${document.getElementById('resume-industry').options[document.getElementById('resume-industry').selectedIndex].text} industry.` : ''} ${experienceLevel ? `Seeking ${experienceLevel} opportunities to leverage technical skills.` : ''}</p>
+                    
+                    <h4 class="font-semibold mt-6 mb-2">TECHNICAL EXPERIENCE</h4>
+                    <div class="mb-2">
+                        <p class="font-medium">Software Developer | ABC Tech | Jan 2020 - Present</p>
+                        <ul class="list-disc pl-5 mt-1">
+                            <li>Engineered and optimized 15+ web applications using React and Node.js, improving performance by 35%</li>
+                            <li>Developed RESTful APIs that enhanced data retrieval efficiency by 30%, reducing latency</li>
+                            <li>Led cross-functional teams in agile environment to deliver 4 major projects 2 weeks ahead of schedule</li>
+                            <li>Implemented automated testing that reduced bugs by 40% in production</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <p class="font-medium">Junior Developer | XYZ Solutions | Jun 2018 - Dec 2019</p>
+                        <ul class="list-disc pl-5 mt-1">
+                            <li>Developed 10+ customer-facing features that improved user engagement by 25%</li>
+                            <li>Resolved 50+ bug reports, improving application stability</li>
+                            <li>Participated in code reviews, maintaining 99% code quality standards</li>
+                        </ul>
+                    </div>
+                    
+                    <h4 class="font-semibold mt-6 mb-2">EDUCATION</h4>
+                    <p class="mb-4">Bachelor of Science in Computer Science | University of Technology | May 2018</p>
+                    
+                    <h4 class="font-semibold mt-6 mb-2">TECHNICAL SKILLS</h4>
+                    <ul class="list-disc pl-5 mb-2">
+                        <li><span class="font-medium">Programming Languages:</span> JavaScript, Python, Java, HTML5/CSS3</li>
+                        <li><span class="font-medium">Frameworks & Libraries:</span> React, Node.js, Express, Django, Angular</li>
+                        <li><span class="font-medium">Tools & Technologies:</span> Git, Docker, AWS, MongoDB, MySQL, CI/CD</li>
+                        <li><span class="font-medium">Methodologies:</span> Agile, Scrum, Test-Driven Development</li>
+                    </ul>
+                    
+                    <div class="p-3 bg-blue-50 rounded-lg border border-blue-100 mt-6">
+                        <p class="font-semibold text-blue-800">AI ENHANCEMENTS APPLIED:</p>
+                        <ul class="list-disc pl-5 mt-2 text-blue-700">
+                            <li>Quantified achievements with metrics (35% performance improvement, 40% bug reduction)</li>
+                            <li>Enhanced action verbs (Engineered, Developed, Led, Implemented)</li>
+                            <li>Optimized skills section with relevant keywords</li>
+                            <li>Improved formatting for ATS compatibility</li>
+                            ${industry ? `<li>Tailored content for ${document.getElementById('resume-industry').options[document.getElementById('resume-industry').selectedIndex].text} industry</li>` : ''}
+                            ${experienceLevel ? `<li>Adjusted for ${experienceLevel} level position</li>` : ''}
+                            ${jobSpecificEnhancements || '<li>Tailored to match job description keywords</li>'}
+                        </ul>
+                    </div>
+                `;
+                
+                // Show result
+                const resumeOutput = document.getElementById('resume-output');
+                const resumeResult = document.getElementById('resume-result');
+                if (resumeOutput) resumeOutput.innerHTML = improvedResume;
+                if (resumeResult) resumeResult.classList.remove('hidden');
+                
+                // Update usage in Supabase
+                const { data: usage, error: usageError } = await supabase
+                    .from('usage')
+                    .select('resume_usage, letter_usage')
+                    .eq('user_id', user.id)
+                    .single();
+                
+                if (!usageError) {
+                    const newResumeUsage = usage.resume_usage + 1;
+                    
+                    const { error: updateError } = await supabase
+                        .from('usage')
+                        .update({ resume_usage: newResumeUsage })
+                        .eq('user_id', user.id);
+                    
+                    if (!updateError) {
+                        // Get user tier to determine limits
+                        const { data: profile } = await supabase
+                            .from('profiles')
+                            .select('tier')
+                            .eq('id', user.id)
+                            .single();
+                        
+                        const resumeLimit = profile.tier === 'pro' ? 999 : 3;
+                        updateUsageStats(newResumeUsage, resumeLimit, usage.letter_usage, profile.tier === 'pro' ? 999 : 3);
+                    }
+                }
+                
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+                
+                hideLoading();
+                showToast('Resume successfully enhanced!', 'success');
+                
+                // Scroll to results
+                if (resumeResult) {
+                    resumeResult.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 3000);
+        } catch (error) {
+            hideLoading();
+            showToast('Error boosting resume: ' + error.message, 'error');
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    }
+    
+    // Cover letter generation functionality
+    async function generateCoverLetter() {
+        const jobDescriptionInput = document.getElementById('job-description-input');
+        
+        if (!jobDescriptionInput) {
+            showToast('Job description input element not found', 'error');
+            return;
+        }
+        
+        const jobDescription = jobDescriptionInput.value.trim();
+        const companyName = document.getElementById('company-name') ? document.getElementById('company-name').value : '';
+        const tone = document.getElementById('letter-tone') ? document.getElementById('letter-tone').value : 'professional';
+        
+        if (!jobDescription) {
+            showToast('Please paste the job description first', 'error');
+            return;
+        }
+        
+        // Show loading state
+        showLoading('Generating your cover letter...');
+        const button = document.getElementById('generate-letter-btn');
+        if (!button) {
+            hideLoading();
+            return;
+        }
+        
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        button.disabled = true;
+        
+        try {
+            // Get current user
+            const { data: { session } } = await supabase.auth.getSession();
+            const user = session.user;
+            
+            // In a real app, this would call a Supabase Edge Function
+            // For demo purposes, we're simulating an API call
+            setTimeout(async () => {
+                // Extract company name from job description if not provided
+                const extractedCompany = companyName || extractCompanyName(jobDescription);
+                
+                // Extract keywords for personalization
+                const keywords = extractKeywords(jobDescription);
+                let keywordHighlights = '';
+                
+                if (keywords.includes('react')) keywordHighlights += 'React, ';
+                if (keywords.includes('javascript')) keywordHighlights += 'JavaScript, ';
+                if (keywords.includes('node')) keywordHighlights += 'Node.js, ';
+                if (keywords.includes('python')) keywordHighlights += 'Python, ';
+                if (keywords.includes('aws')) keywordHighlights += 'AWS, ';
+                if (keywords.includes('agile')) keywordHighlights += 'Agile methodologies, ';
+                
+                if (keywordHighlights) {
+                    keywordHighlights = keywordHighlights.slice(0, -2); // Remove trailing comma
+                }
+                
+                // Simulate generated cover letter
+                const coverLetter = `
+                    <p class="text-right">${new Date().toLocaleDateString()}</p>
+                    
+                    <p class="mt-6">Dear Hiring Manager,</p>
+                    
+                    <p class="my-3">I am writing to express my enthusiastic interest in the Software Developer position ${extractedCompany ? `at ${extractedCompany}` : 'with your company'}, which I discovered through your recent job posting. With over 5 years of experience in full-stack JavaScript development, I have successfully built and deployed 15+ web applications that improved performance by 35% and reduced bugs by 40%.</p>
+                    
+                    <p class="my-3">My expertise in ${keywordHighlights || 'React, Node.js, and modern development practices'} aligns perfectly with the requirements outlined in your job description. In my previous role at ABC Tech, I engineered RESTful APIs that enhanced data retrieval efficiency by 30% and led cross-functional teams to deliver projects ahead of schedule.</p>
+                    
+                    <p class="my-3">I am particularly drawn to ${extractedCompany ? `${extractedCompany}'s` : 'your company\'s'} focus on innovative solutions and believe my technical skills and collaborative approach would make me a valuable asset to your team. I am excited about the opportunity to contribute to your development efforts and help drive ${extractedCompany ? `${extractedCompany}'s` : 'your'} technological innovation forward.</p>
+                    
+                    <p class="my-3">Thank you for considering my application. I have attached my resume for your review and would welcome the opportunity to discuss how my experience and skills can benefit ${extractedCompany ? `${extractedCompany}` : 'your organization'}.</p>
+                    
+                    <p>Sincerely,<br>
+                    John Doe<br>
+                    Software Developer<br>
+                    john.doe@email.com | (123) 456-7890</p>
+                    
+                    <div class="p-3 bg-green-50 rounded-lg border border-green-100 mt-6">
+                        <p class="font-semibold text-green-800">AI ENHANCEMENTS APPLIED:</p>
+                        <ul class="list-disc pl-5 mt-2 text-green-700">
+                            <li>Tailored to match the job description keywords and requirements</li>
+                            <li>Highlighted relevant experience with quantifiable achievements</li>
+                            <li>Adjusted tone to be ${tone}</li>
+                            ${extractedCompany ? `<li>Personalized for ${extractedCompany}</li>` : ''}
+                            <li>Professional formatting and structure optimized for recruiters</li>
+                            ${keywordHighlights ? `<li>Emphasized ${keywordHighlights} skills mentioned in job description</li>` : ''}
+                        </ul>
+                    </div>
+                `;
+                
+                // Show result
+                const letterOutput = document.getElementById('letter-output');
+                const letterResult = document.getElementById('letter-result');
+                if (letterOutput) letterOutput.innerHTML = coverLetter;
+                if (letterResult) letterResult.classList.remove('hidden');
+                
+                // Update usage in Supabase
+                const { data: usage, error: usageError } = await supabase
+                    .from('usage')
+                    .select('resume_usage, letter_usage')
+                    .eq('user_id', user.id)
+                    .single();
+                
+                if (!usageError) {
+                    const newLetterUsage = usage.letter_usage + 1;
+                    
+                    const { error: updateError } = await supabase
+                        .from('usage')
+                        .update({ letter_usage: newLetterUsage })
+                        .eq('user_id', user.id);
+                    
+                    if (!updateError) {
+                        // Get user tier to determine limits
+                        const { data: profile } = await supabase
+                            .from('profiles')
+                            .select('tier')
+                            .eq('id', user.id)
+                            .single();
+                        
+                        const letterLimit = profile.tier === 'pro' ? 999 : 3;
+                        updateUsageStats(usage.resume_usage, profile.tier === 'pro' ? 999 : 3, newLetterUsage, letterLimit);
+                    }
+                }
+                
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+                
+                hideLoading();
+                showToast('Cover letter generated successfully!', 'success');
+                
+                // Scroll to results
+                if (letterResult) {
+                    letterResult.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 3000);
+        } catch (error) {
+            hideLoading();
+            showToast('Error generating cover letter: ' + error.message, 'error');
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    }
+    
+    // Helper function to extract company name from job description
+    function extractCompanyName(jobDescription) {
+        // This is a simple implementation - in a real app, you'd use more sophisticated NLP
+        const lines = jobDescription.split('\n');
+        for (const line of lines) {
+            if (line.toLowerCase().includes('company:') || line.toLowerCase().includes('about us:')) {
+                return line.split(':')[1].trim();
+            }
+        }
+        return null;
+    }
+    
+    // Helper function to extract keywords from job description
+    function extractKeywords(jobDescription) {
+        const keywords = [];
+        const text = jobDescription.toLowerCase();
+        
+        if (text.includes('react') || text.includes('javascript')) keywords.push('react');
+        if (text.includes('node') || text.includes('backend')) keywords.push('node');
+        if (text.includes('python')) keywords.push('python');
+        if (text.includes('aws') || text.includes('cloud')) keywords.push('aws');
+        if (text.includes('agile') || text.includes('scrum')) keywords.push('agile');
+        if (text.includes('docker') || text.includes('kubernetes')) keywords.push('docker');
+        if (text.includes('mysql') || text.includes('database')) keywords.push('database');
+        
+        return keywords;
+    }
+    
+    // Save resume functionality
+    async function saveResume() {
+        // In a real app, this would save to the resumes table in Supabase
+        showLoading('Saving your resume...');
+        const button = document.getElementById('save-resume-btn');
+        if (!button) {
+            hideLoading();
+            return;
+        }
+        
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        
+        setTimeout(() => {
+            hideLoading();
+            showToast('Resume saved successfully!', 'success');
+            button.innerHTML = originalText;
+            
+            // Add to documents list
+            const documentsList = document.getElementById('documents-list');
+            if (documentsList) {
                 documentsList.innerHTML = `
                     <tr>
                         <td class="py-4 px-4 text-sm font-medium text-gray-900">Enhanced Resume</td>
@@ -1577,24 +1835,31 @@ Preferred Qualifications:
                         </td>
                     </tr>
                 `;
-            }, 1500);
-        });
+            }
+        }, 1500);
+    }
+    
+    // Save cover letter functionality
+    async function saveCoverLetter() {
+        // In a real app, this would save to the cover_letters table in Supabase
+        showLoading('Saving your cover letter...');
+        const button = document.getElementById('save-letter-btn');
+        if (!button) {
+            hideLoading();
+            return;
+        }
         
-        // Save cover letter functionality
-        document.getElementById('save-letter-btn').addEventListener('click', async () => {
-            // In a real app, this would save to the cover_letters table in Supabase
-            showLoading('Saving your cover letter...');
-            const button = document.getElementById('save-letter-btn');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        
+        setTimeout(() => {
+            hideLoading();
+            showToast('Cover letter saved successfully!', 'success');
+            button.innerHTML = originalText;
             
-            setTimeout(() => {
-                hideLoading();
-                showToast('Cover letter saved successfully!', 'success');
-                button.innerHTML = originalText;
-                
-                // Add to documents list
-                const documentsList = document.getElementById('documents-list');
+            // Add to documents list
+            const documentsList = document.getElementById('documents-list');
+            if (documentsList) {
                 documentsList.innerHTML = `
                     <tr>
                         <td class="py-4 px-4 text-sm font-medium text-gray-900">Generated Cover Letter</td>
@@ -1607,198 +1872,168 @@ Preferred Qualifications:
                         </td>
                     </tr>
                 `;
-            }, 1500);
-        });
+            }
+        }, 1500);
+    }
+    
+    // Save profile functionality
+    async function saveProfile() {
+        showLoading('Saving your profile...');
         
-        // Regenerate buttons
-        document.getElementById('regenerate-resume-btn').addEventListener('click', () => {
-            showToast('This would regenerate the resume with different improvements', 'info');
-        });
-        
-        document.getElementById('regenerate-letter-btn').addEventListener('click', () => {
-            showToast('This would regenerate the cover letter with a different approach', 'info');
-        });
-        
-        // Upgrade plan functionality
-        document.getElementById('upgrade-btn').addEventListener('click', () => {
-            document.getElementById('paypal-button-container').classList.toggle('hidden');
-        });
-        
-        document.getElementById('manage-subscription-btn').addEventListener('click', () => {
-            document.getElementById('paypal-button-container').classList.toggle('hidden');
-        });
-        
-        // Save profile functionality
-        document.getElementById('save-profile-btn').addEventListener('click', async () => {
-            showLoading('Saving your profile...');
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const user = session.user;
             
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                const user = session.user;
-                
-                const { error } = await supabase
-                    .from('profiles')
-                    .update({
-                        full_name: document.getElementById('user-name-input').value,
-                        job_title: document.getElementById('user-job-input').value
-                    })
-                    .eq('id', user.id);
-                
-                if (error) {
-                    console.error('Error updating profile:', error);
-                    showToast('Error saving profile', 'error');
-                    return;
-                }
-                
+            const userNameInput = document.getElementById('user-name-input');
+            const userJobInput = document.getElementById('user-job-input');
+            
+            if (!userNameInput || !userJobInput) {
                 hideLoading();
-                showToast('Profile updated successfully!', 'success');
-            } catch (error) {
-                hideLoading();
+                showToast('Error saving profile: Input elements not found', 'error');
+                return;
+            }
+            
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    full_name: userNameInput.value,
+                    job_title: userJobInput.value
+                })
+                .eq('id', user.id);
+            
+            if (error) {
+                console.error('Error updating profile:', error);
                 showToast('Error saving profile', 'error');
+                return;
             }
-        });
-        
-        // Filter and sort dropdowns
-        document.getElementById('filter-btn').addEventListener('click', () => {
-            document.getElementById('filter-dropdown').classList.toggle('hidden');
-            document.getElementById('sort-dropdown').classList.add('hidden');
-        });
-        
-        document.getElementById('sort-btn').addEventListener('click', () => {
-            document.getElementById('sort-dropdown').classList.toggle('hidden');
-            document.getElementById('filter-dropdown').classList.add('hidden');
-        });
-        
-        // Close dropdowns when clicking elsewhere
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('#filter-btn') && !e.target.closest('#filter-dropdown')) {
-                document.getElementById('filter-dropdown').classList.add('hidden');
-            }
-            if (!e.target.closest('#sort-btn') && !e.target.closest('#sort-dropdown')) {
-                document.getElementById('sort-dropdown').classList.add('hidden');
-            }
-        });
-        
-        // Theme toggle
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            const themeToggle = document.getElementById('theme-toggle');
-            const themeLabel = document.getElementById('theme-label');
-            const themeIcon = themeToggle.querySelector('i');
             
-            if (themeToggle.classList.contains('bg-gray-300')) {
-                // Switch to dark mode
-                themeToggle.classList.remove('bg-gray-300');
-                themeToggle.classList.add('bg-primary');
-                themeToggle.querySelector('div').classList.remove('translate-x-0');
-                themeToggle.querySelector('div').classList.add('translate-x-7');
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-                themeIcon.classList.remove('text-yellow-500');
-                themeIcon.classList.add('text-gray-300');
-                themeLabel.textContent = 'Dark';
-                
-                // Apply dark theme to body
-                document.body.classList.add('bg-gray-900', 'text-white');
-                document.body.classList.remove('bg-gray-50');
-                
-                // Update all white elements to dark
-                document.querySelectorAll('.bg-white').forEach(el => {
-                    el.classList.remove('bg-white');
-                    el.classList.add('bg-gray-800');
-                });
-                
-                // Update text colors
-                document.querySelectorAll('.text-gray-600, .text-gray-700, .text-gray-800').forEach(el => {
-                    if (el.classList.contains('text-gray-600')) {
-                        el.classList.remove('text-gray-600');
-                        el.classList.add('text-gray-300');
-                    }
-                    if (el.classList.contains('text-gray-700')) {
-                        el.classList.remove('text-gray-700');
-                        el.classList.add('text-gray-200');
-                    }
-                    if (el.classList.contains('text-gray-800')) {
-                        el.classList.remove('text-gray-800');
-                        el.classList.add('text-gray-100');
-                    }
-                });
-                
-                // Update border colors
-                document.querySelectorAll('.border-gray-200').forEach(el => {
-                    el.classList.remove('border-gray-200');
-                    el.classList.add('border-gray-700');
-                });
-                
-                // Update input fields
-                document.querySelectorAll('.input-field').forEach(el => {
-                    el.classList.add('bg-gray-700', 'text-white', 'border-gray-600');
-                });
-                
-                // Update table styles
-                document.querySelectorAll('.bg-gray-50').forEach(el => {
-                    el.classList.remove('bg-gray-50');
-                    el.classList.add('bg-gray-700');
-                });
-                
-            } else {
-                // Switch to light mode
-                themeToggle.classList.add('bg-gray-300');
-                themeToggle.classList.remove('bg-primary');
-                themeToggle.querySelector('div').classList.add('translate-x-0');
-                themeToggle.querySelector('div').classList.remove('translate-x-7');
-                themeIcon.classList.add('fa-sun');
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('text-yellow-500');
-                themeIcon.classList.remove('text-gray-300');
-                themeLabel.textContent = 'Light';
-                
-                // Apply light theme to body
-                document.body.classList.remove('bg-gray-900', 'text-white');
-                document.body.classList.add('bg-gray-50');
-                
-                // Revert all dark elements to light
-                document.querySelectorAll('.bg-gray-800').forEach(el => {
-                    el.classList.remove('bg-gray-800');
-                    el.classList.add('bg-white');
-                });
-                
-                // Revert text colors
-                document.querySelectorAll('.text-gray-300, .text-gray-200, .text-gray-100').forEach(el => {
-                    if (el.classList.contains('text-gray-300')) {
-                        el.classList.remove('text-gray-300');
-                        el.classList.add('text-gray-600');
-                    }
-                    if (el.classList.contains('text-gray-200')) {
-                        el.classList.remove('text-gray-200');
-                        el.classList.add('text-gray-700');
-                    }
-                    if (el.classList.contains('text-gray-100')) {
-                        el.classList.remove('text-gray-100');
-                        el.classList.add('text-gray-800');
-                    }
-                });
-                
-                // Revert border colors
-                document.querySelectorAll('.border-gray-700').forEach(el => {
-                    el.classList.remove('border-gray-700');
-                    el.classList.add('border-gray-200');
-                });
-                
-                // Revert input fields
-                document.querySelectorAll('.input-field').forEach(el => {
-                    el.classList.remove('bg-gray-700', 'text-white', 'border-gray-600');
-                });
-                
-                // Revert table styles
-                document.querySelectorAll('.bg-gray-700').forEach(el => {
-                    el.classList.remove('bg-gray-700');
-                    el.classList.add('bg-gray-50');
-                });
-            }
-        });
+            hideLoading();
+            showToast('Profile updated successfully!', 'success');
+        } catch (error) {
+            hideLoading();
+            showToast('Error saving profile', 'error');
+        }
+    }
+    
+    // Theme toggle functionality
+    function toggleTheme() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeLabel = document.getElementById('theme-label');
+        if (!themeToggle || !themeLabel) return;
         
-        // Initialize the dashboard
-        checkAuth();
-    </script>
+        const themeIcon = themeToggle.querySelector('i');
+        
+        if (themeToggle.classList.contains('bg-gray-300')) {
+            // Switch to dark mode
+            themeToggle.classList.remove('bg-gray-300');
+            themeToggle.classList.add('bg-primary');
+            themeToggle.querySelector('div').classList.remove('translate-x-0');
+            themeToggle.querySelector('div').classList.add('translate-x-7');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+            themeIcon.classList.remove('text-yellow-500');
+            themeIcon.classList.add('text-gray-300');
+            themeLabel.textContent = 'Dark';
+            
+            // Apply dark theme to body
+            document.body.classList.add('bg-gray-900', 'text-white');
+            document.body.classList.remove('bg-gray-50');
+            
+            // Update all white elements to dark
+            document.querySelectorAll('.bg-white').forEach(el => {
+                el.classList.remove('bg-white');
+                el.classList.add('bg-gray-800');
+            });
+            
+            // Update text colors
+            document.querySelectorAll('.text-gray-600, .text-gray-700, .text-gray-800').forEach(el => {
+                if (el.classList.contains('text-gray-600')) {
+                    el.classList.remove('text-gray-600');
+                    el.classList.add('text-gray-300');
+                }
+                if (el.classList.contains('text-gray-700')) {
+                    el.classList.remove('text-gray-700');
+                    el.classList.add('text-gray-200');
+                }
+                if (el.classList.contains('text-gray-800')) {
+                    el.classList.remove('text-gray-800');
+                    el.classList.add('text-gray-100');
+                }
+            });
+            
+            // Update border colors
+            document.querySelectorAll('.border-gray-200').forEach(el => {
+                el.classList.remove('border-gray-200');
+                el.classList.add('border-gray-700');
+            });
+            
+            // Update input fields
+            document.querySelectorAll('.input-field').forEach(el => {
+                el.classList.add('bg-gray-700', 'text-white', 'border-gray-600');
+            });
+            
+            // Update table styles
+            document.querySelectorAll('.bg-gray-50').forEach(el => {
+                el.classList.remove('bg-gray-50');
+                el.classList.add('bg-gray-700');
+            });
+            
+        } else {
+            // Switch to light mode
+            themeToggle.classList.add('bg-gray-300');
+            themeToggle.classList.remove('bg-primary');
+            themeToggle.querySelector('div').classList.add('translate-x-0');
+            themeToggle.querySelector('div').classList.remove('translate-x-7');
+            themeIcon.classList.add('fa-sun');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('text-yellow-500');
+            themeIcon.classList.remove('text-gray-300');
+            themeLabel.textContent = 'Light';
+            
+            // Apply light theme to body
+            document.body.classList.remove('bg-gray-900', 'text-white');
+            document.body.classList.add('bg-gray-50');
+            
+            // Revert all dark elements to light
+            document.querySelectorAll('.bg-gray-800').forEach(el => {
+                el.classList.remove('bg-gray-800');
+                el.classList.add('bg-white');
+            });
+            
+            // Revert text colors
+            document.querySelectorAll('.text-gray-300, .text-gray-200, .text-gray-100').forEach(el => {
+                if (el.classList.contains('text-gray-300')) {
+                    el.classList.remove('text-gray-300');
+                    el.classList.add('text-gray-600');
+                }
+                if (el.classList.contains('text-gray-200')) {
+                    el.classList.remove('text-gray-200');
+                    el.classList.add('text-gray-700');
+                }
+                if (el.classList.contains('text-gray-100')) {
+                    el.classList.remove('text-gray-100');
+                    el.classList.add('text-gray-800');
+                }
+            });
+            
+            // Revert border colors
+            document.querySelectorAll('.border-gray-700').forEach(el => {
+                el.classList.remove('border-gray-700');
+                el.classList.add('border-gray-200');
+            });
+            
+            // Revert input fields
+            document.querySelectorAll('.input-field').forEach(el => {
+                el.classList.remove('bg-gray-700', 'text-white', 'border-gray-600');
+            });
+            
+            // Revert table styles
+            document.querySelectorAll('.bg-gray-700').forEach(el => {
+                el.classList.remove('bg-gray-700');
+                el.classList.add('bg-gray-50');
+            });
+        }
+    }
+</script>
 </body>
 </html>
