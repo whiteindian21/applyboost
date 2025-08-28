@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApplyBoost Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Add PayPal SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=test&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4361EE',
+                        secondary: '#3A0CA3',
+                        accent: '#7209B7',
+                        light: '#F8F9FA',
+                        dark: '#212529',
+                        success: '#4CC9F0',
+                        warning: '#F9A826',
+                        danger: '#E63946',
+                        gradient1: '#4361EE',
+                        gradient2: '#3A0CA3',
+                        gradient3: '#7209B7',
+                        gradient4: '#4CC9F0'
+                    },
+                    animation: {
+                        'gradient': 'gradient 15s ease infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                    },
+                    keyframes: {
+                        gradient: {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(-45deg, #4361EE, #3A0CA3, #7209B7, #4CC9F0);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        .sidebar {
+            transition: all 0.3s ease;
+            background: linear-gradient(to bottom, #212529, #2c3036);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .usage-progress {
+            transition: width 1s ease-in-out;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .input-field {
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .input-field:focus {
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            border-color: #4361EE;
+        }
+        
+        .cta-button {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #4361EE 0%, #3A0CA3 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        
+        .highlight-text {
+            background: linear-gradient(90deg, #4361EE, #4CC9F0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 12px;
+            background: rgba(33, 37, 41, 0.9);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 100;
+            margin-bottom: 5px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+        
+        .shimmer {
+            animation: shimmer 1.5s infinite;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+        }
+        
+        .document-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        .document-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #4361EE 0%, #3A0CA3 50%, #7209B7 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .neon-shadow {
+            box-shadow: 0 0 10px rgba(67, 97, 238, 0.5), 0 0 20px rgba(67, 97, 238, 0.3);
+        }
+        
+        .resume-output, .letter-output {
+            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .resume-output h3, .letter-output h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #212529;
+        }
+        
+        .resume-output h4, .letter-output h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #212529;
+        }
+        
+        .resume-output p, .letter-output p {
+            margin-bottom: 1rem;
+        }
+        
+        .resume-output ul, .letter-output ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .resume-output li, .letter-output li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer {
+            background: linear-gradient(to right, #212529, #2c3036);
+            color: white;
+            padding: 3rem 1rem;
+            margin-top: 3rem;
+        }
+        
+        .footer a {
+            transition: all 0.3s ease;
+        }
+        
+        .footer a:hover {
+            color: #4361EE;
+        }
+        
+        .social-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            transform: translateY(-3px);
+            color: #4361EE;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+                height: 100vh;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 30;
+            }
+            
+            .overlay.open {
+                display: block;
+            }
+            
+            .footer {
+                padding: 2rem 1rem;
+            }
+        }
+        
+        .plan-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .plan-badge-free {
+            background-color: #E5E7EB;
+            color: #374151;
+        }
+        
+        .plan-badge-pro {
+            background: linear-gradient(135deg, #4361EE 0%, #3A0CA3 100%);
+            color: white;
+        }
+        
+        .feature-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .feature-list li i {
+            margin-right: 0.5rem;
+            margin-top: 0.25rem;
+            color: #4361EE;
+        }
+        
+        .pro-feature {
+            position: relative;
+        }
+        
+        .pro-feature::after {
+            content: "PRO";
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: linear-gradient(135deg, #4361EE 0%, #3A0CA3 100%);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 0.15rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        /* PayPal button styling */
+        .paypal-button-container {
+            margin-top: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm"></div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 flex flex-col items-center shadow-xl">
+            <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="text-gray-700 font-medium" id="loading-text">Processing your request...</p>
+        </div>
+    </div>
+    
+    <!-- Mobile menu button -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+        <button id="mobile-menu-button" class="p-3 rounded-xl bg-primary text-white shadow-md neon-shadow">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    
+    <!-- Overlay for mobile menu -->
+    <div id="overlay" class="overlay"></div>
+    
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-64 text-white h-screen fixed lg:relative">
+            <div class="p-6">
+                <div class="flex items-center justify-center mb-10">
+                    <span class="text-white text-2xl font-bold flex items-center">
+                        <i class="fas fa-bolt mr-2 text-success"></i>ApplyBoost
+                    </span>
+                </div>
+                
+                <nav class="space-y-2">
+                    <a href="#" data-tab="resume" class="tab-btn flex items-center px-4 py-3 rounded-xl bg-primary text-white shadow-md neon-shadow">
+                        <i class="fas fa-file-alt mr-3"></i>
+                        Resume Booster
+                    </a>
+                    <a href="#" data-tab="cover-letter" class="tab-btn flex items-center px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 transition">
+                        <i class="fas fa-envelope-open-text mr-3"></i>
+                        Cover Letter Generator
+                    </a>
+                    <a href="#" data-tab="documents" class="tab-btn flex items-center px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 transition">
+                        <i class="fas fa-folder mr-3"></i>
+                        My Documents
+                    </a>
+                    <a href="#" data-tab="settings" class="tab-btn flex items-center px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 transition">
+                        <i class="fas fa-cog mr-3"></i>
+                        Settings
+                    </a>
+                    <a href="#" id="logout-btn" class="flex items-center px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 transition mt-10">
+                        <i class="fas fa-sign-out-alt mr-3"></i>
+                        Log Out
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="absolute bottom-0 w-full p-6 text-center text-gray-400 text-sm">
+                © 2025 ApplyBoost
+            </div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="flex-1 lg:ml-0">
+            <!-- Header -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-dark" id="current-tab-title">Resume Booster</h1>
+                        <p class="text-sm text-gray-600" id="welcome-message">Welcome back! Ready to boost your job search?</p>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="mr-4 hidden md:block text-right">
+                            <p class="text-sm text-gray-600" id="user-email">user@example.com</p>
+                            <p class="text-xs font-medium" id="user-tier">
+                                <span class="plan-badge plan-badge-free" id="user-tier-badge">Free Plan</span>
+                            </p>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold shadow-md neon-shadow">
+                            <span id="user-initial">U</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <main class="p-6">
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-2xl shadow-md p-6 card-hover">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-file-alt text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Resume Boosts Used</p>
+                                <h3 class="text-2xl font-bold"><span id="stats-resume-usage">0</span>/<span id="stats-resume-limit">3</span></h3>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+                            <div id="stats-resume-progress" class="usage-progress bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-md p-6 card-hover">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-envelope-open-text text-accent text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Cover Letters Used</p>
+                                <h3 class="text-2xl font-bold"><span id="stats-letter-usage">0</span>/<span id="stats-letter-limit">3</span></h3>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+                            <div id="stats-letter-progress" class="usage-progress bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-md p-6 card-hover">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-clock text-secondary text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Next Reset</p>
+                                <h3 class="text-2xl font-bold" id="reset-timer">30 days</h3>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">Monthly limits reset on the 1st of each month</p>
+                    </div>
+                </div>
+                
+                <!-- Resume Tab -->
+                <div id="resume-tab" class="tab-content active">
+                    <div class="bg-white rounded-2xl shadow-md p-6 mb-6 card-hover">
+                        <h2 class="text-xl font-bold mb-4">Boost Your Resume</h2>
+                        <p class="text-gray-600 mb-6">Paste your resume below and our AI will improve it to be more professional and tailored to your target job.</p>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-sm font-medium text-gray-700">Your Resume</label>
+                                <button id="sample-resume-btn" class="text-xs text-primary hover:text-secondary flex items-center">
+                                    <i class="fas fa-magic mr-1"></i> Load sample resume
+                                </button>
+                            </div>
+                            <textarea id="resume-input" class="input-field w-full h-64 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Paste your resume here..."></textarea>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-sm font-medium text-gray-700">Job Description (for tailoring your resume)</label>
+                                <button id="sample-job-desc-btn" class="text-xs text-primary hover:text-secondary flex items-center">
+                                    <i class="fas fa-magic mr-1"></i> Load sample job
+                                </button>
+                            </div>
+                            <textarea id="job-description-resume-input" class="input-field w-full h-40 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Paste the job description you're targeting..."></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Target Industry (optional)</label>
+                                <select id="resume-industry" class="input-field w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <option value="">Select an industry</option>
+                                    <option value="tech">Technology</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="healthcare">Healthcare</option>
+                                    <option value="education">Education</option>
+                                    <option value="marketing">Marketing</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Experience Level (optional)</label>
+                                <select id="resume-experience" class="input-field w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <option value="">Select experience level</option>
+                                    <option value="entry">Entry Level</option>
+                                    <option value="mid">Mid Level</option>
+                                    <option value="senior">Senior Level</option>
+                                    <option value="executive">Executive</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between">
+                            <div class="mb-4 sm:mb-0">
+                                <p class="text-sm text-gray-600">Resume boosts used: <span id="resume-usage">0</span>/<span id="resume-limit">3</span></p>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                    <div id="resume-progress" class="usage-progress bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <button id="boost-resume-btn" class="cta-button bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-secondary transition shadow-md flex items-center">
+                                <i class="fas fa-bolt mr-2"></i>Boost Resume
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="resume-result" class="bg-white rounded-2xl shadow-md p-6 card-hover hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold">Improved Resume</h2>
+                            <div class="flex space-x-2">
+                                <button id="copy-resume-btn" class="text-gray-500 hover:text-primary p-2 rounded-lg tooltip" data-tooltip="Copy to clipboard">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button id="download-resume-btn" class="text-gray-500 hover:text-primary p-2 rounded-lg tooltip" data-tooltip="Download as PDF">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="border border-gray-200 rounded-xl p-4 bg-gray-50 min-h-64 prose max-w-none resume-output" id="resume-output">
+                            <!-- Improved resume will appear here -->
+                        </div>
+                        <div class="mt-6 flex justify-end space-x-4">
+                            <button id="regenerate-resume-btn" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-xl font-semibold hover:bg-gray-300 transition flex items-center">
+                                <i class="fas fa-sync mr-2"></i>Regenerate
+                            </button>
+                            <button id="save-resume-btn" class="cta-button bg-primary text-white px-6 py-2 rounded-xl font-semibold hover:bg-secondary transition shadow-md flex items-center">
+                                <i class="fas fa-save mr-2"></i>Save Resume
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cover Letter Tab -->
+                <div id="cover-letter-tab" class="tab-content">
+                    <div class="bg-white rounded-2xl shadow-md p-6 mb-6 card-hover">
+                        <h2 class="text-xl font-bold mb-4">Generate Cover Letter</h2>
+                        <p class="text-gray-600 mb-6">Paste the job description below and our AI will generate a tailored cover letter based on your resume.</p>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-sm font-medium text-gray-700">Job Description</label>
+                                <button id="sample-job-btn" class="text-xs text-primary hover:text-secondary flex items-center">
+                                    <i class="fas fa-magic mr-1"></i> Load sample job
+                                </button>
+                            </div>
+                            <textarea id="job-description-input" class="input-field w-full h-64 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Paste the job description here..."></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Company Name (optional)</label>
+                                <input type="text" id="company-name" class="input-field w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter company name">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tone (optional)</label>
+                                <select id="letter-tone" class="input-field w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <option value="professional">Professional</option>
+                                    <option value="enthusiastic">Enthusiastic</option>
+                                    <option value="formal">Formal</option>
+                                    <option value="creative">Creative</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between">
+                            <div class="mb-4 sm:mb-0">
+                                <p class="text-sm text-gray-600">Cover letters used: <span id="letter-usage">0</span>/<span id="letter-limit">3</span></p>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                    <div id="letter-progress" class="usage-progress bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <button id="generate-letter-btn" class="cta-button bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-secondary transition shadow-md flex items-center">
+                                <i class="fas fa-envelope mr-2"></i>Generate Cover Letter
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="letter-result" class="bg-white rounded-2xl shadow-md p-6 card-hover hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold">Generated Cover Letter</h2>
+                            <div class="flex space-x-2">
+                                <button id="copy-letter-btn" class="text-gray-500 hover:text-primary p-2 rounded-lg tooltip" data-tooltip="Copy to clipboard">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button id="download-letter-btn" class="text-gray-500 hover:text-primary p-2 rounded-lg tooltip" data-tooltip="Download as PDF">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="border border-gray-200 rounded-xl p-4 bg-gray-50 min-h-64 prose max-w-none letter-output" id="letter-output">
+                            <!-- Generated cover letter will appear here -->
+                        </div>
+                        <div class="mt-6 flex justify-end space-x-4">
+                            <button id="regenerate-letter-btn" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-xl font-semibold hover:bg-gray-300 transition flex items-center">
+                                <i class="fas fa-sync mr-2"></i>Regenerate
+                            </button>
+                            <button id="save-letter-btn" class="cta-button bg-primary text-white px-6 py-2 rounded-xl font-semibold hover:bg-secondary transition shadow-md flex items-center">
+                                <i class="fas fa-save mr-2"></i>Save Cover Letter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Documents Tab -->
+                <div id="documents-tab" class="tab-content">
+                    <div class="bg-white rounded-2xl shadow-md p-6 mb-6 card-hover">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold">My Documents</h2>
+                            <div class="flex space-x-2">
+                                <div class="relative">
+                                    <button id="filter-btn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-semibold hover:bg-gray-300 transition flex items-center">
+                                        <i class="fas fa-filter mr-2"></i>Filter
+                                    </button>
+                                    <div id="filter-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 hidden">
+                                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 document-filter" data-filter="all">All Documents</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 document-filter" data-filter="resume">Resumes</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 document-filter" data-filter="cover-letter">Cover Letters</a>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <button id="sort-btn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-semibold hover:bg-gray-300 transition flex items-center">
+                                        <i class="fas fa-sort mr-2"></i>Sort
+                                    </button>
+                                    <div id="sort-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 hidden">
+                                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 document-sort" data-sort="newest">Newest First</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 document-sort" data-sort="oldest">Oldest First</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 document-sort" data-sort="name">By Name</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-gray-200 rounded-xl overflow-hidden">
+                            <table class="w-full document-table">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-700">Name</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-700">Type</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-700">Date</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-700">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200" id="documents-list">
+                                    <tr>
+                                        <td class="py-4 px-4 text-sm text-gray-600">No documents yet</td>
+                                        <td class="py-4 px-4 text-sm text-gray-600"></td>
+                                        <td class="py-4 px-4 text-sm text-gray-600"></td>
+                                        <td class="py-4 px-4 text-sm text-gray-600"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Tab -->
+                <div id="settings-tab" class="tab-content">
+                    <div class="bg-white rounded-2xl shadow-md p-6 mb-6 card-hover">
+                        <h2 class="text-xl font-bold mb-6">Account Settings</h2>
+                        
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold mb-4">Profile Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <input type="text" id="user-name-input" class="input-field w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter your name">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                    <input type="email" id="user-email-input" class="input-field w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Subscription Plan</label>
+                                    <div class="flex items-center">
+                                        <span id="user-plan" class="px-4 py-2 bg-gray-100 rounded-xl text-gray-800 font-medium">Free</span>
+                                        <button id="upgrade-btn" class="ml-4 cta-button bg-primary text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-secondary transition shadow-md">Upgrade Plan</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                                    <input type="text" id="user-job-input" class="input-field w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter your job title">
+                                </div>
+                            </div>
+                            <div class="mt-6 flex justify-end">
+                                <button id="save-profile-btn" class="cta-button bg-primary text-white px-6 py-2 rounded-xl font-semibold hover:bg-secondary transition shadow-md">Save Changes</button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold mb-4">Usage Statistics</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-50 p-5 rounded-xl">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Resume Boosts</span>
+                                        <span id="settings-resume-usage" class="text-sm text-gray-500">0/3</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="settings-resume-progress" class="usage-progress bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">Resets monthly</p>
+                                </div>
+                                <div class="bg-gray-50 p-5 rounded-xl">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Cover Letters</span>
+                                        <span id="settings-letter-usage" class="text-sm text-gray-500">0/3</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="settings-letter-progress" class="usage-progress bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">Resets monthly</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold mb-4">Subscription Management</h3>
+                            <div class="bg-gray-50 p-6 rounded-xl">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                    <div>
+                                        <p class="font-medium">Current Plan: <span id="current-plan">Free</span></p>
+                                        <p class="text-sm text-gray-600 mt-1">Upgrade for more resume boosts and unlimited cover letters</p>
+                                    </div>
+                                    <div class="mt-4 md:mt-0">
+                                        <button id="manage-subscription-btn" class="cta-button bg-primary text-white px-6 py-2 rounded-xl font-semibold hover:bg-secondary transition shadow-md">Upgrade Plan</button>
+                                    </div>
+                                </div>
+                                <!-- PayPal payment button -->
+                                <div id="paypal-button-container" class="paypal-button-container mt-4 hidden"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Appearance</h3>
+                            <div class="flex items-center">
+                                <span class="mr-4 text-gray-700">Theme:</span>
+                                <button id="theme-toggle" class="w-14 h-7 flex items-center bg-gray-300 rounded-full px-1">
+                                    <div class="bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 translate-x-0">
+                                        <i class="fas fa-sun text-yellow-500 text-xs flex items-center justify-center h-full"></i>
+                                    </div>
+                                </button>
+                                <span class="ml-2 text-gray-700" id="theme-label">Light</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://xchumlvegsfoqottucgp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjaHVtbHZlZ3Nmb3FvdHR1Y2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzNDAwNzIsImV4cCI6MjA3MTkxNjA3Mn0.lYR65UE9w0USI_cIj9xsEHgD4x255l_My1cBBnQRFwg';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // DOM Elements
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const currentTabTitle = document.getElementById('current-tab-title');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        
+        // Mobile menu toggle
+        mobileMenuButton.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        });
+        
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        });
+        
+        // Tab switching
+        tabButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tab = button.getAttribute('data-tab');
+                
+                // Update active tab button
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('bg-primary', 'text-white');
+                    btn.classList.add('text-gray-300', 'hover:bg-gray-800');
+                });
+                button.classList.add('bg-primary', 'text-white');
+                button.classList.remove('text-gray-300', 'hover:bg-gray-800');
+                
+                // Update active tab content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${tab}-tab`).classList.add('active');
+                
+                // Update title
+                currentTabTitle.textContent = button.textContent.trim();
+                
+                // Update welcome message based on tab
+                updateWelcomeMessage(tab);
+                
+                // Close mobile menu after selection
+                if (window.innerWidth < 768) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('open');
+                }
+            });
+        });
+        
+        // Update welcome message based on active tab
+        function updateWelcomeMessage(tab) {
+            const messages = {
+                'resume': 'Ready to boost your resume for that dream job?',
+                'cover-letter': 'Create the perfect cover letter for your application',
+                'documents': 'Manage your saved resumes and cover letters',
+                'settings': 'Manage your account settings and subscription'
+            };
+            
+            welcomeMessage.textContent = messages[tab] || 'Welcome back! Ready to boost your job search?';
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.getElementById('toast-container').appendChild(toast);
+            
+            // Remove toast after 5 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s';
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
+        }
+        
+        // Show loading overlay
+        function showLoading(message = 'Processing your request...') {
+            loadingText.textContent = message;
+            loadingOverlay.classList.remove('hidden');
+        }
+        
+        // Hide loading overlay
+        function hideLoading() {
+            loadingOverlay.classList.add('hidden');
+        }
+        
+        // Check authentication status
+        async function checkAuth() {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
+            if (!session) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            // Set user info
+            const user = session.user;
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('user-initial').textContent = user.email.charAt(0).toUpperCase();
+            document.getElementById('user-email-input').value = user.email;
+            
+            // Load user data (subscription tier, usage, etc.)
+            await loadUserData(user);
+            
+            // Start the reset timer
+            startResetTimer();
+            
+            // Initialize PayPal button if user is on free plan
+            if (document.getElementById('user-tier-badge').textContent === 'Free Plan') {
+                initPayPalButton();
+            }
+        }
+        
+        // Load user data from Supabase
+        async function loadUserData(user) {
+            try {
+                // Fetch user profile from Supabase
+                const { data: profile, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (error) {
+                    console.error('Error fetching profile:', error);
+                    showToast('Error loading user data', 'error');
+                    return;
+                }
+                
+                // Update UI with user data
+                document.getElementById('user-tier').textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1) + ' Plan';
+                document.getElementById('user-tier-badge').textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1) + ' Plan';
+                document.getElementById('user-plan').textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1);
+                document.getElementById('current-plan').textContent = profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1);
+                document.getElementById('user-name-input').value = profile.full_name || user.email.split('@')[0];
+                document.getElementById('user-job-input').value = profile.job_title || 'Software Developer';
+                
+                // Fetch usage data
+                const { data: usage, error: usageError } = await supabase
+                    .from('usage')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+                
+                if (usageError) {
+                    console.error('Error fetching usage:', usageError);
+                    // Create usage record if it doesn't exist
+                    const { data: newUsage, error: insertError } = await supabase
+                        .from('usage')
+                        .insert([
+                            { user_id: user.id, resume_usage: 0, letter_usage: 0 }
+                        ])
+                        .select()
+                        .single();
+                    
+                    if (insertError) {
+                        console.error('Error creating usage record:', insertError);
+                        return;
+                    }
+                    
+                    // Update usage stats with new record
+                    updateUsageStats(newUsage.resume_usage, profile.tier === 'pro' ? 999 : 3, newUsage.letter_usage, profile.tier === 'pro' ? 999 : 3);
+                } else {
+                    // Update usage stats with fetched data
+                    updateUsageStats(usage.resume_usage, profile.tier === 'pro' ? 999 : 3, usage.letter_usage, profile.tier === 'pro' ? 999 : 3);
+                }
+                
+                // Set welcome message with user's name
+                welcomeMessage.textContent = `Welcome back, ${profile.full_name || user.email.split('@')[0]}! Ready to boost your job search?`;
+                
+            } catch (error) {
+                console.error('Error in loadUserData:', error);
+                showToast('Error loading user data', 'error');
+            }
+        }
+        
+        // Update usage statistics
+        function updateUsageStats(resumeUsage, resumeLimit, letterUsage, letterLimit) {
+            // Update resume usage
+            document.getElementById('resume-usage').textContent = resumeUsage;
+            document.getElementById('resume-limit').textContent = resumeLimit;
+            document.getElementById('stats-resume-usage').textContent = resumeUsage;
+            document.getElementById('stats-resume-limit').textContent = resumeLimit;
+            document.getElementById('settings-resume-usage').textContent = `${resumeUsage}/${resumeLimit}`;
+            const resumeProgress = (resumeUsage / resumeLimit) * 100;
+            document.getElementById('resume-progress').style.width = `${resumeProgress}%`;
+            document.getElementById('stats-resume-progress').style.width = `${resumeProgress}%`;
+            document.getElementById('settings-resume-progress').style.width = `${resumeProgress}%`;
+            
+            // Update letter usage
+            document.getElementById('letter-usage').textContent = letterUsage;
+            document.getElementById('letter-limit').textContent = letterLimit;
+            document.getElementById('stats-letter-usage').textContent = letterUsage;
+            document.getElementById('stats-letter-limit').textContent = letterLimit;
+            document.getElementById('settings-letter-usage').textContent = `${letterUsage}/${letterLimit}`;
+            const letterProgress = (letterUsage / letterLimit) * 100;
+            document.getElementById('letter-progress').style.width = `${letterProgress}%`;
+            document.getElementById('stats-letter-progress').style.width = `${letterProgress}%`;
+            document.getElementById('settings-letter-progress').style.width = `${letterProgress}%`;
+            
+            // Update button states based on usage
+            document.getElementById('boost-resume-btn').disabled = resumeUsage >= resumeLimit;
+            document.getElementById('generate-letter-btn').disabled = letterUsage >= letterLimit;
+            
+            if (resumeUsage >= resumeLimit) {
+                document.getElementById('boost-resume-btn').classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                document.getElementById('boost-resume-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            if (letterUsage >= letterLimit) {
+                document.getElementById('generate-letter-btn').classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                document.getElementById('generate-letter-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        // Start the reset timer
+        function startResetTimer() {
+            // Calculate next month's 1st day
+            const today = new Date();
+            const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+            nextMonth.setHours(0, 0, 0, 0);
+            
+            // Update the timer every second
+            setInterval(() => {
+                const now = new Date();
+                const diff = nextMonth - now;
+                
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                
+                document.getElementById('reset-timer').textContent = `${days}d ${hours}h ${minutes}m`;
+            }, 1000);
+        }
+        
+        // Initialize PayPal button
+        function initPayPalButton() {
+            paypal.Buttons({
+                style: {
+                    shape: 'rect',
+                    color: 'blue',
+                    layout: 'vertical',
+                    label: 'subscribe'
+                },
+                createSubscription: function(data, actions) {
+                    return actions.subscription.create({
+                        'plan_id': 'P-3RX065706M9229224L5IFM4I' // Replace with your actual plan ID
+                    });
+                },
+                onApprove: function(data, actions) {
+                    showToast('Subscription completed successfully!', 'success');
+                    
+                    // Update user tier in Supabase
+                    updateUserTier();
+                },
+                onError: function(err) {
+                    showToast('Error processing payment: ' + err, 'error');
+                }
+            }).render('#paypal-button-container');
+        }
+        
+        // Update user tier in Supabase after successful payment
+        async function updateUserTier() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const user = session.user;
+                
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .update({ tier: 'pro' })
+                    .eq('id', user.id);
+                
+                if (error) {
+                    console.error('Error updating user tier:', error);
+                    showToast('Error updating account', 'error');
+                    return;
+                }
+                
+                // Update UI to reflect pro tier
+                document.getElementById('user-tier').textContent = 'Pro Plan';
+                document.getElementById('user-tier-badge').textContent = 'Pro Plan';
+                document.getElementById('user-tier-badge').className = 'plan-badge plan-badge-pro';
+                document.getElementById('user-plan').textContent = 'Pro';
+                document.getElementById('current-plan').textContent = 'Pro';
+                
+                // Hide PayPal button after upgrade
+                document.getElementById('paypal-button-container').classList.add('hidden');
+                
+                // Update usage limits
+                updateUsageStats(
+                    parseInt(document.getElementById('resume-usage').textContent),
+                    999,
+                    parseInt(document.getElementById('letter-usage').textContent),
+                    999
+                );
+                
+                showToast('Your account has been upgraded to Pro!', 'success');
+                
+            } catch (error) {
+                console.error('Error in updateUserTier:', error);
+                showToast('Error updating account', 'error');
+            }
+        }
+        
+        // Logout function
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const { error } = await supabase.auth.signOut();
+            window.location.href = 'auth.html';
+        });
+        
+        // Sample resume button
+        document.getElementById('sample-resume-btn').addEventListener('click', () => {
+            const sampleResume = `John Doe
+Software Developer
+john.doe@email.com | (123) 456-7890 | linkedin.com/in/johndoe | github.com/johndoe
+
+SUMMARY
+Experienced software developer with 5+ years in web development. Proficient in JavaScript, React, Node.js, and Python. Passionate about creating efficient and scalable applications.
+
+EXPERIENCE
+Software Developer | ABC Tech | Jan 2020 - Present
+- Developed and maintained web applications using React and Node.js
+- Implemented RESTful APIs that improved data retrieval efficiency by 30%
+- Collaborated with cross-functional teams to deliver projects on time
+
+Junior Developer | XYZ Solutions | Jun 2018 - Dec 2019
+- Assisted in the development of customer-facing features
+- Fixed bugs and implemented minor feature requests
+- Participated in code reviews and team meetings
+
+EDUCATION
+Bachelor of Science in Computer Science
+University of Technology | Graduated May 2018
+
+SKILLS
+- Programming Languages: JavaScript, Python, Java, HTML/CSS
+- Frameworks: React, Node.js, Express, Django
+- Tools: Git, Docker, AWS, MongoDB`;
+            
+            document.getElementById('resume-input').value = sampleResume;
+            showToast('Sample resume loaded!', 'success');
+        });
+        
+        // Sample job description button for resume
+        document.getElementById('sample-job-desc-btn').addEventListener('click', () => {
+            const sampleJob = `Software Developer Job Description
+
+We are looking for a skilled Software Developer to join our innovative team. The ideal candidate will have experience in building high-performing, scalable, enterprise-grade applications.
+
+Responsibilities:
+- Develop, test, and maintain software applications
+- Collaborate with cross-functional teams to define, design, and ship new features
+- Unit-test code for robustness, including edge cases, usability, and general reliability
+- Work on bug fixing and improving application performance
+- Continuously discover, evaluate, and implement new technologies to maximize development efficiency
+
+Requirements:
+- Bachelor's degree in Computer Science or related field
+- 3+ years of software development experience
+- Proficient in JavaScript, HTML, CSS, and front-end frameworks (React, Angular, or Vue)
+- Experience with back-end technologies (Node.js, Python, Java)
+- Familiarity with database technology such as MySQL, MongoDB
+- Excellent problem-solving and communication skills
+
+Preferred Qualifications:
+- Experience with cloud services (AWS, Azure, or GCP)
+- Knowledge of containerization technologies (Docker, Kubernetes)
+- Understanding of agile development methodologies
+- Experience with CI/CD pipelines`;
+            
+            document.getElementById('job-description-resume-input').value = sampleJob;
+            showToast('Sample job description loaded!', 'success');
+        });
+        
+        // Sample job description button for cover letter
+        document.getElementById('sample-job-btn').addEventListener('click', () => {
+            const sampleJob = `Software Developer Job Description
+
+We are looking for a skilled Software Developer to join our innovative team. The ideal candidate will have experience in building high-performing, scalable, enterprise-grade applications.
+
+Responsibilities:
+- Develop, test, and maintain software applications
+- Collaborate with cross-functional teams to define, design, and ship new features
+- Unit-test code for robustness, including edge cases, usability, and general reliability
+- Work on bug fixing and improving application performance
+- Continuously discover, evaluate, and implement new technologies to maximize development efficiency
+
+Requirements:
+- Bachelor's degree in Computer Science or related field
+- 3+ years of software development experience
+- Proficient in JavaScript, HTML, CSS, and front-end frameworks (React, Angular, or Vue)
+- Experience with back-end technologies (Node.js, Python, Java)
+- Familiarity with database technology such as MySQL, MongoDB
+- Excellent problem-solving and communication skills
+
+Preferred Qualifications:
+- Experience with cloud services (AWS, Azure, or GCP)
+- Knowledge of containerization technologies (Docker, Kubernetes)
+- Understanding of agile development methodologies
+- Experience with CI/CD pipelines`;
+            
+            document.getElementById('job-description-input').value = sampleJob;
+            showToast('Sample job description loaded!', 'success');
+        });
+        
+        // Resume boost functionality
+        document.getElementById('boost-resume-btn').addEventListener('click', async () => {
+            const resumeText = document.getElementById('resume-input').value.trim();
+            const jobDescription = document.getElementById('job-description-resume-input').value.trim();
+            const industry = document.getElementById('resume-industry').value;
+            const experienceLevel = document.getElementById('resume-experience').value;
+            
+            if (!resumeText) {
+                showToast('Please paste your resume first', 'error');
+                return;
+            }
+            
+            // Show loading state
+            showLoading('Enhancing your resume with AI...');
+            const button = document.getElementById('boost-resume-btn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            button.disabled = true;
+            
+            try {
+                // Get current user
+                const { data: { session } } = await supabase.auth.getSession();
+                const user = session.user;
+                
+                // In a real app, this would call a Supabase Edge Function
+                // For demo purposes, we're simulating an API call
+                setTimeout(async () => {
+                    // Extract keywords from job description for tailoring
+                    let jobSpecificEnhancements = '';
+                    if (jobDescription) {
+                        if (jobDescription.includes('React') || jobDescription.includes('JavaScript')) {
+                            jobSpecificEnhancements += '<li>Emphasized React and JavaScript experience to match job requirements</li>';
+                        }
+                        if (jobDescription.includes('Node.js') || jobDescription.includes('backend')) {
+                            jobSpecificEnhancements += '<li>Highlighted Node.js and backend development skills</li>';
+                        }
+                        if (jobDescription.includes('cloud') || jobDescription.includes('AWS')) {
+                            jobSpecificEnhancements += '<li>Added cloud and AWS experience mentioned in job description</li>';
+                        }
+                        if (jobDescription.includes('agile') || jobDescription.includes('scrum')) {
+                            jobSpecificEnhancements += '<li>Emphasized agile methodology experience</li>';
+                        }
+                    }
+                    
+                    // Simulate improved resume
+                    const improvedResume = `
+                        <h3 class="text-lg font-semibold mb-2">JOHN DOE</h3>
+                        <p class="text-primary font-medium mb-4">Software Developer</p>
+                        <p class="mb-4">john.doe@email.com | (123) 456-7890 | linkedin.com/in/johndoe | github.com/johndoe</p>
+                        
+                        <h4 class="font-semibold mt-6 mb-2">PROFESSIONAL SUMMARY</h4>
+                        <p class="mb-4">Results-driven Software Developer with 5+ years of experience in full-stack web development. Expertise in JavaScript, React, Node.js, and Python with a proven track record of delivering scalable applications that improve efficiency by 30%. ${industry ? `Specialized in the ${industry} industry.` : ''} ${experienceLevel ? `Seeking ${experienceLevel} opportunities to leverage technical skills.` : ''}</p>
+                        
+                        <h4 class="font-semibold mt-6 mb-2">TECHNICAL EXPERIENCE</h4>
+                        <div class="mb-2">
+                            <p class="font-medium">Software Developer | ABC Tech | Jan 2020 - Present</p>
+                            <ul class="list-disc pl-5 mt-1">
+                                <li>Engineered and optimized 15+ web applications using React and Node.js, improving performance by 35%</li>
+                                <li>Developed RESTful APIs that enhanced data retrieval efficiency by 30%, reducing latency</li>
+                                <li>Led cross-functional teams in agile environment to deliver 4 major projects 2 weeks ahead of schedule</li>
+                                <li>Implemented automated testing that reduced bugs by 40% in production</li>
+                            </ul>
+                        </div>
+                        <div class="mb-4">
+                            <p class="font-medium">Junior Developer | XYZ Solutions | Jun 2018 - Dec 2019</p>
+                            <ul class="list-disc pl-5 mt-1">
+                                <li>Developed 10+ customer-facing features that improved user engagement by 25%</li>
+                                <li>Resolved 50+ bug reports, improving application stability</li>
+                                <li>Participated in code reviews, maintaining 99% code quality standards</li>
+                            </ul>
+                        </div>
+                        
+                        <h4 class="font-semibold mt-6 mb-2">EDUCATION</h4>
+                        <p class="mb-4">Bachelor of Science in Computer Science | University of Technology | May 2018</p>
+                        
+                        <h4 class="font-semibold mt-6 mb-2">TECHNICAL SKILLS</h4>
+                        <ul class="list-disc pl-5 mb-2">
+                            <li><span class="font-medium">Programming Languages:</span> JavaScript, Python, Java, HTML5/CSS3</li>
+                            <li><span class="font-medium">Frameworks & Libraries:</span> React, Node.js, Express, Django, Angular</li>
+                            <li><span class="font-medium">Tools & Technologies:</span> Git, Docker, AWS, MongoDB, MySQL, CI/CD</li>
+                            <li><span class="font-medium">Methodologies:</span> Agile, Scrum, Test-Driven Development</li>
+                        </ul>
+                        
+                        <div class="p-3 bg-blue-50 rounded-lg border border-blue-100 mt-6">
+                            <p class="font-semibold text-blue-800">AI ENHANCEMENTS APPLIED:</p>
+                            <ul class="list-disc pl-5 mt-2 text-blue-700">
+                                <li>Quantified achievements with metrics (35% performance improvement, 40% bug reduction)</li>
+                                <li>Enhanced action verbs (Engineered, Developed, Led, Implemented)</li>
+                                <li>Optimized skills section with relevant keywords</li>
+                                <li>Improved formatting for ATS compatibility</li>
+                                ${industry ? `<li>Tailored content for ${industry} industry</li>` : ''}
+                                ${experienceLevel ? `<li>Adjusted for ${experienceLevel} level position</li>` : ''}
+                                ${jobSpecificEnhancements || '<li>Tailored to match job description keywords</li>'}
+                            </ul>
+                        </div>
+                    `;
+                    
+                    // Show result
+                    document.getElementById('resume-output').innerHTML = improvedResume;
+                    document.getElementById('resume-result').classList.remove('hidden');
+                    
+                    // Update usage in Supabase
+                    const { data: usage, error: usageError } = await supabase
+                        .from('usage')
+                        .select('resume_usage')
+                        .eq('user_id', user.id)
+                        .single();
+                    
+                    if (!usageError) {
+                        const newResumeUsage = usage.resume_usage + 1;
+                        
+                        const { error: updateError } = await supabase
+                            .from('usage')
+                            .update({ resume_usage: newResumeUsage })
+                            .eq('user_id', user.id);
+                        
+                        if (!updateError) {
+                            // Get user tier to determine limits
+                            const { data: profile } = await supabase
+                                .from('profiles')
+                                .select('tier')
+                                .eq('id', user.id)
+                                .single();
+                            
+                            const resumeLimit = profile.tier === 'pro' ? 999 : 3;
+                            updateUsageStats(newResumeUsage, resumeLimit, usage.letter_usage, profile.tier === 'pro' ? 999 : 3);
+                        }
+                    }
+                    
+                    // Reset button
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    
+                    hideLoading();
+                    showToast('Resume successfully enhanced!', 'success');
+                    
+                    // Scroll to results
+                    document.getElementById('resume-result').scrollIntoView({ behavior: 'smooth' });
+                }, 3000);
+            } catch (error) {
+                hideLoading();
+                showToast('Error boosting resume: ' + error.message, 'error');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        });
+        
+        // Cover letter generation functionality
+        document.getElementById('generate-letter-btn').addEventListener('click', async () => {
+            const jobDescription = document.getElementById('job-description-input').value.trim();
+            const companyName = document.getElementById('company-name').value;
+            const tone = document.getElementById('letter-tone').value;
+            
+            if (!jobDescription) {
+                showToast('Please paste the job description first', 'error');
+                return;
+            }
+            
+            // Show loading state
+            showLoading('Generating your cover letter...');
+            const button = document.getElementById('generate-letter-btn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            button.disabled = true;
+            
+            try {
+                // Get current user
+                const { data: { session } } = await supabase.auth.getSession();
+                const user = session.user;
+                
+                // In a real app, this would call a Supabase Edge Function
+                // For demo purposes, we're simulating an API call
+                setTimeout(async () => {
+                    // Extract company name from job description if not provided
+                    const extractedCompany = companyName || extractCompanyName(jobDescription);
+                    
+                    // Extract keywords for personalization
+                    const keywords = extractKeywords(jobDescription);
+                    let keywordHighlights = '';
+                    
+                    if (keywords.includes('react')) keywordHighlights += 'React, ';
+                    if (keywords.includes('javascript')) keywordHighlights += 'JavaScript, ';
+                    if (keywords.includes('node')) keywordHighlights += 'Node.js, ';
+                    if (keywords.includes('python')) keywordHighlights += 'Python, ';
+                    if (keywords.includes('aws')) keywordHighlights += 'AWS, ';
+                    if (keywords.includes('agile')) keywordHighlights += 'Agile methodologies, ';
+                    
+                    if (keywordHighlights) {
+                        keywordHighlights = keywordHighlights.slice(0, -2); // Remove trailing comma
+                    }
+                    
+                    // Simulate generated cover letter
+                    const coverLetter = `
+                        <p class="text-right">${new Date().toLocaleDateString()}</p>
+                        
+                        <p class="mt-6">Dear Hiring Manager,</p>
+                        
+                        <p class="my-3">I am writing to express my enthusiastic interest in the Software Developer position ${extractedCompany ? `at ${extractedCompany}` : 'with your company'}, which I discovered through your recent job posting. With over 5 years of experience in full-stack JavaScript development, I have successfully built and deployed 15+ web applications that improved performance by 35% and reduced bugs by 40%.</p>
+                        
+                        <p class="my-3">My expertise in ${keywordHighlights || 'React, Node.js, and modern development practices'} aligns perfectly with the requirements outlined in your job description. In my previous role at ABC Tech, I engineered RESTful APIs that enhanced data retrieval efficiency by 30% and led cross-functional teams to deliver projects ahead of schedule.</p>
+                        
+                        <p class="my-3">I am particularly drawn to ${extractedCompany ? `${extractedCompany}'s` : 'your company\'s'} focus on innovative solutions and believe my technical skills and collaborative approach would make me a valuable asset to your team. I am excited about the opportunity to contribute to your development efforts and help drive ${extractedCompany ? `${extractedCompany}'s` : 'your'} technological innovation forward.</p>
+                        
+                        <p class="my-3">Thank you for considering my application. I have attached my resume for your review and would welcome the opportunity to discuss how my experience and skills can benefit ${extractedCompany ? `${extractedCompany}` : 'your organization'}.</p>
+                        
+                        <p>Sincerely,<br>
+                        John Doe<br>
+                        Software Developer<br>
+                        john.doe@email.com | (123) 456-7890</p>
+                        
+                        <div class="p-3 bg-green-50 rounded-lg border border-green-100 mt-6">
+                            <p class="font-semibold text-green-800">AI ENHANCEMENTS APPLIED:</p>
+                            <ul class="list-disc pl-5 mt-2 text-green-700">
+                                <li>Tailored to match the job description keywords and requirements</li>
+                                <li>Highlighted relevant experience with quantifiable achievements</li>
+                                <li>Adjusted tone to be ${tone}</li>
+                                ${extractedCompany ? `<li>Personalized for ${extractedCompany}</li>` : ''}
+                                <li>Professional formatting and structure optimized for recruiters</li>
+                                ${keywordHighlights ? `<li>Emphasized ${keywordHighlights} skills mentioned in job description</li>` : ''}
+                            </ul>
+                        </div>
+                    `;
+                    
+                    // Show result
+                    document.getElementById('letter-output').innerHTML = coverLetter;
+                    document.getElementById('letter-result').classList.remove('hidden');
+                    
+                    // Update usage in Supabase
+                    const { data: usage, error: usageError } = await supabase
+                        .from('usage')
+                        .select('letter_usage')
+                        .eq('user_id', user.id)
+                        .single();
+                    
+                    if (!usageError) {
+                        const newLetterUsage = usage.letter_usage + 1;
+                        
+                        const { error: updateError } = await supabase
+                            .from('usage')
+                            .update({ letter_usage: newLetterUsage })
+                            .eq('user_id', user.id);
+                        
+                        if (!updateError) {
+                            // Get user tier to determine limits
+                            const { data: profile } = await supabase
+                                .from('profiles')
+                                .select('tier')
+                                .eq('id', user.id)
+                                .single();
+                            
+                            const letterLimit = profile.tier === 'pro' ? 999 : 3;
+                            updateUsageStats(usage.resume_usage, profile.tier === 'pro' ? 999 : 3, newLetterUsage, letterLimit);
+                        }
+                    }
+                    
+                    // Reset button
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    
+                    hideLoading();
+                    showToast('Cover letter generated successfully!', 'success');
+                    
+                    // Scroll to results
+                    document.getElementById('letter-result').scrollIntoView({ behavior: 'smooth' });
+                }, 3000);
+            } catch (error) {
+                hideLoading();
+                showToast('Error generating cover letter: ' + error.message, 'error');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        });
+        
+        // Helper function to extract company name from job description
+        function extractCompanyName(jobDescription) {
+            // This is a simple implementation - in a real app, you'd use more sophisticated NLP
+            const lines = jobDescription.split('\n');
+            for (const line of lines) {
+                if (line.toLowerCase().includes('company:') || line.toLowerCase().includes('about us:')) {
+                    return line.split(':')[1].trim();
+                }
+            }
+            return null;
+        }
+        
+        // Helper function to extract keywords from job description
+        function extractKeywords(jobDescription) {
+            const keywords = [];
+            const text = jobDescription.toLowerCase();
+            
+            if (text.includes('react') || text.includes('javascript')) keywords.push('react');
+            if (text.includes('node') || text.includes('backend')) keywords.push('node');
+            if (text.includes('python')) keywords.push('python');
+            if (text.includes('aws') || text.includes('cloud')) keywords.push('aws');
+            if (text.includes('agile') || text.includes('scrum')) keywords.push('agile');
+            if (text.includes('docker') || text.includes('kubernetes')) keywords.push('docker');
+            if (text.includes('mysql') || text.includes('database')) keywords.push('database');
+            
+            return keywords;
+        }
+        
+        // Copy resume to clipboard
+        document.getElementById('copy-resume-btn').addEventListener('click', () => {
+            const resumeText = document.getElementById('resume-output').textContent;
+            navigator.clipboard.writeText(resumeText).then(() => {
+                showToast('Resume copied to clipboard!', 'success');
+            });
+        });
+        
+        // Copy cover letter to clipboard
+        document.getElementById('copy-letter-btn').addEventListener('click', () => {
+            const letterText = document.getElementById('letter-output').textContent;
+            navigator.clipboard.writeText(letterText).then(() => {
+                showToast('Cover letter copied to clipboard!', 'success');
+            });
+        });
+        
+        // Download resume as PDF (simulated)
+        document.getElementById('download-resume-btn').addEventListener('click', () => {
+            showToast('Download feature would generate a PDF in a real application', 'info');
+        });
+        
+        // Download cover letter as PDF (simulated)
+        document.getElementById('download-letter-btn').addEventListener('click', () => {
+            showToast('Download feature would generate a PDF in a real application', 'info');
+        });
+        
+        // Save resume functionality
+        document.getElementById('save-resume-btn').addEventListener('click', async () => {
+            // In a real app, this would save to the resumes table in Supabase
+            showLoading('Saving your resume...');
+            const button = document.getElementById('save-resume-btn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            setTimeout(() => {
+                hideLoading();
+                showToast('Resume saved successfully!', 'success');
+                button.innerHTML = originalText;
+                
+                // Add to documents list
+                const documentsList = document.getElementById('documents-list');
+                documentsList.innerHTML = `
+                    <tr>
+                        <td class="py-4 px-4 text-sm font-medium text-gray-900">Enhanced Resume</td>
+                        <td class="py-4 px-4 text-sm text-gray-600">Resume</td>
+                        <td class="py-4 px-4 text-sm text-gray-600">Just now</td>
+                        <td class="py-4 px-4 text-sm text-gray-600">
+                            <button class="text-primary hover:text-secondary mr-3"><i class="fas fa-eye"></i></button>
+                            <button class="text-primary hover:text-secondary mr-3"><i class="fas fa-download"></i></button>
+                            <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }, 1500);
+        });
+        
+        // Save cover letter functionality
+        document.getElementById('save-letter-btn').addEventListener('click', async () => {
+            // In a real app, this would save to the cover_letters table in Supabase
+            showLoading('Saving your cover letter...');
+            const button = document.getElementById('save-letter-btn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            setTimeout(() => {
+                hideLoading();
+                showToast('Cover letter saved successfully!', 'success');
+                button.innerHTML = originalText;
+                
+                // Add to documents list
+                const documentsList = document.getElementById('documents-list');
+                documentsList.innerHTML = `
+                    <tr>
+                        <td class="py-4 px-4 text-sm font-medium text-gray-900">Generated Cover Letter</td>
+                        <td class="py-4 px-4 text-sm text-gray-600">Cover Letter</td>
+                        <td class="py-4 px-4 text-sm text-gray-600">Just now</td>
+                        <td class="py-4 px-4 text-sm text-gray-600">
+                            <button class="text-primary hover:text-secondary mr-3"><i class="fas fa-eye"></i></button>
+                            <button class="text-primary hover:text-secondary mr-3"><i class="fas fa-download"></i></button>
+                            <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }, 1500);
+        });
+        
+        // Regenerate buttons
+        document.getElementById('regenerate-resume-btn').addEventListener('click', () => {
+            showToast('This would regenerate the resume with different improvements', 'info');
+        });
+        
+        document.getElementById('regenerate-letter-btn').addEventListener('click', () => {
+            showToast('This would regenerate the cover letter with a different approach', 'info');
+        });
+        
+        // Upgrade plan functionality
+        document.getElementById('upgrade-btn').addEventListener('click', () => {
+            document.getElementById('paypal-button-container').classList.toggle('hidden');
+        });
+        
+        document.getElementById('manage-subscription-btn').addEventListener('click', () => {
+            document.getElementById('paypal-button-container').classList.toggle('hidden');
+        });
+        
+        // Save profile functionality
+        document.getElementById('save-profile-btn').addEventListener('click', async () => {
+            showLoading('Saving your profile...');
+            
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const user = session.user;
+                
+                const { error } = await supabase
+                    .from('profiles')
+                    .update({
+                        full_name: document.getElementById('user-name-input').value,
+                        job_title: document.getElementById('user-job-input').value
+                    })
+                    .eq('id', user.id);
+                
+                if (error) {
+                    console.error('Error updating profile:', error);
+                    showToast('Error saving profile', 'error');
+                    return;
+                }
+                
+                hideLoading();
+                showToast('Profile updated successfully!', 'success');
+            } catch (error) {
+                hideLoading();
+                showToast('Error saving profile', 'error');
+            }
+        });
+        
+        // Filter and sort dropdowns
+        document.getElementById('filter-btn').addEventListener('click', () => {
+            document.getElementById('filter-dropdown').classList.toggle('hidden');
+            document.getElementById('sort-dropdown').classList.add('hidden');
+        });
+        
+        document.getElementById('sort-btn').addEventListener('click', () => {
+            document.getElementById('sort-dropdown').classList.toggle('hidden');
+            document.getElementById('filter-dropdown').classList.add('hidden');
+        });
+        
+        // Close dropdowns when clicking elsewhere
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#filter-btn') && !e.target.closest('#filter-dropdown')) {
+                document.getElementById('filter-dropdown').classList.add('hidden');
+            }
+            if (!e.target.closest('#sort-btn') && !e.target.closest('#sort-dropdown')) {
+                document.getElementById('sort-dropdown').classList.add('hidden');
+            }
+        });
+        
+        // Theme toggle
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeLabel = document.getElementById('theme-label');
+            const themeIcon = themeToggle.querySelector('i');
+            
+            if (themeToggle.classList.contains('bg-gray-300')) {
+                // Switch to dark mode
+                themeToggle.classList.remove('bg-gray-300');
+                themeToggle.classList.add('bg-primary');
+                themeToggle.querySelector('div').classList.remove('translate-x-0');
+                themeToggle.querySelector('div').classList.add('translate-x-7');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                themeIcon.classList.remove('text-yellow-500');
+                themeIcon.classList.add('text-gray-300');
+                themeLabel.textContent = 'Dark';
+                
+                // Apply dark theme to body
+                document.body.classList.add('bg-gray-900', 'text-white');
+                document.body.classList.remove('bg-gray-50');
+                
+                // Update all white elements to dark
+                document.querySelectorAll('.bg-white').forEach(el => {
+                    el.classList.remove('bg-white');
+                    el.classList.add('bg-gray-800');
+                });
+                
+                // Update text colors
+                document.querySelectorAll('.text-gray-600, .text-gray-700, .text-gray-800').forEach(el => {
+                    if (el.classList.contains('text-gray-600')) {
+                        el.classList.remove('text-gray-600');
+                        el.classList.add('text-gray-300');
+                    }
+                    if (el.classList.contains('text-gray-700')) {
+                        el.classList.remove('text-gray-700');
+                        el.classList.add('text-gray-200');
+                    }
+                    if (el.classList.contains('text-gray-800')) {
+                        el.classList.remove('text-gray-800');
+                        el.classList.add('text-gray-100');
+                    }
+                });
+                
+                // Update border colors
+                document.querySelectorAll('.border-gray-200').forEach(el => {
+                    el.classList.remove('border-gray-200');
+                    el.classList.add('border-gray-700');
+                });
+                
+                // Update input fields
+                document.querySelectorAll('.input-field').forEach(el => {
+                    el.classList.add('bg-gray-700', 'text-white', 'border-gray-600');
+                });
+                
+                // Update table styles
+                document.querySelectorAll('.bg-gray-50').forEach(el => {
+                    el.classList.remove('bg-gray-50');
+                    el.classList.add('bg-gray-700');
+                });
+                
+            } else {
+                // Switch to light mode
+                themeToggle.classList.add('bg-gray-300');
+                themeToggle.classList.remove('bg-primary');
+                themeToggle.querySelector('div').classList.add('translate-x-0');
+                themeToggle.querySelector('div').classList.remove('translate-x-7');
+                themeIcon.classList.add('fa-sun');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('text-yellow-500');
+                themeIcon.classList.remove('text-gray-300');
+                themeLabel.textContent = 'Light';
+                
+                // Apply light theme to body
+                document.body.classList.remove('bg-gray-900', 'text-white');
+                document.body.classList.add('bg-gray-50');
+                
+                // Revert all dark elements to light
+                document.querySelectorAll('.bg-gray-800').forEach(el => {
+                    el.classList.remove('bg-gray-800');
+                    el.classList.add('bg-white');
+                });
+                
+                // Revert text colors
+                document.querySelectorAll('.text-gray-300, .text-gray-200, .text-gray-100').forEach(el => {
+                    if (el.classList.contains('text-gray-300')) {
+                        el.classList.remove('text-gray-300');
+                        el.classList.add('text-gray-600');
+                    }
+                    if (el.classList.contains('text-gray-200')) {
+                        el.classList.remove('text-gray-200');
+                        el.classList.add('text-gray-700');
+                    }
+                    if (el.classList.contains('text-gray-100')) {
+                        el.classList.remove('text-gray-100');
+                        el.classList.add('text-gray-800');
+                    }
+                });
+                
+                // Revert border colors
+                document.querySelectorAll('.border-gray-700').forEach(el => {
+                    el.classList.remove('border-gray-700');
+                    el.classList.add('border-gray-200');
+                });
+                
+                // Revert input fields
+                document.querySelectorAll('.input-field').forEach(el => {
+                    el.classList.remove('bg-gray-700', 'text-white', 'border-gray-600');
+                });
+                
+                // Revert table styles
+                document.querySelectorAll('.bg-gray-700').forEach(el => {
+                    el.classList.remove('bg-gray-700');
+                    el.classList.add('bg-gray-50');
+                });
+            }
+        });
+        
+        // Initialize the dashboard
+        checkAuth();
+    </script>
+</body>
+</html>
