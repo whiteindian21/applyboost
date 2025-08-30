@@ -351,6 +351,42 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .template-preview-content {
+            width: 85%;
+            height: 75%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .template-preview-line {
+            background-color: rgba(0, 0, 0, 0.1);
+            height: 4px;
+            border-radius: 2px;
+            margin-bottom: 4px;
+        }
+        
+        .template-preview-line.short {
+            width: 40%;
+        }
+        
+        .template-preview-line.medium {
+            width: 70%;
+        }
+        
+        .template-preview-line.long {
+            width: 100%;
+        }
+        
+        .template-preview-header {
+            height: 12px;
+            background-color: var(--primary);
+            margin-bottom: 8px;
+            border-radius: 2px;
         }
         
         .template-name {
@@ -359,6 +395,196 @@
             font-weight: 500;
             color: var(--gray-700);
             background: var(--gray-100);
+        }
+        
+        .template-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--primary);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        /* Template-specific styles */
+        .template-preview.modern {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+        }
+        
+        .template-preview.modern .template-preview-line {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .template-preview.modern .template-preview-header {
+            background-color: white;
+            height: 16px;
+        }
+        
+        .template-preview.executive {
+            background: #1E293B;
+        }
+        
+        .template-preview.executive .template-preview-line {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .template-preview.executive .template-preview-header {
+            background-color: #F8FAFC;
+            height: 14px;
+            width: 60%;
+        }
+        
+        .template-preview.creative {
+            background: linear-gradient(135deg, #7209B7 0%, #4361EE 100%);
+        }
+        
+        .template-preview.creative .template-preview-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+        
+        .template-preview.creative .template-preview-line {
+            background-color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 0;
+        }
+        
+        .template-preview.technical {
+            background: #0F172A;
+        }
+        
+        .template-preview.technical .template-preview-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+        
+        .template-preview.technical .template-preview-line {
+            background-color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 0;
+            height: 3px;
+        }
+        
+        .template-preview.technical .template-preview-line:nth-child(1) {
+            background-color: #4361EE;
+        }
+        
+        .template-preview.technical .template-preview-line:nth-child(4) {
+            background-color: #4361EE;
+        }
+        
+        .template-preview.academic {
+            background: #F8FAFC;
+        }
+        
+        .template-preview.academic .template-preview-line {
+            background-color: rgba(0, 0, 0, 0.1);
+            height: 3px;
+        }
+        
+        .template-preview.academic .template-preview-header {
+            background-color: #1E293B;
+            height: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .template-preview.minimalist {
+            background: white;
+        }
+        
+        .template-preview.minimalist .template-preview-line {
+            background-color: rgba(0, 0, 0, 0.05);
+            height: 2px;
+        }
+        
+        .template-preview.minimalist .template-preview-header {
+            background-color: transparent;
+            border-bottom: 2px solid #1E293B;
+            height: 10px;
+            width: 40%;
+        }
+        
+        .template-preview.chronological {
+            background: #F1F5F9;
+        }
+        
+        .template-preview.chronological .template-preview-content {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .template-preview.chronological .template-preview-timeline {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .template-preview.chronological .timeline-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4361EE;
+            flex-shrink: 0;
+        }
+        
+        .template-preview.chronological .template-preview-line {
+            margin-bottom: 0;
+            height: 3px;
+        }
+        
+        .template-preview.functional {
+            background: white;
+        }
+        
+        .template-preview.functional .template-preview-content {
+            display: grid;
+            grid-template-columns: 30% 1fr;
+            gap: 6px;
+        }
+        
+        .template-preview.functional .template-preview-line {
+            margin-bottom: 0;
+            height: 3px;
+        }
+        
+        .template-preview.functional .sidebar-preview {
+            background: #4361EE;
+            height: 100%;
+            border-radius: 2px;
+        }
+        
+        .template-preview.combination {
+            background: #F8FAFC;
+        }
+        
+        .template-preview.combination .template-preview-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        
+        .template-preview.combination .template-preview-line {
+            margin-bottom: 0;
+            height: 3px;
+        }
+        
+        .template-preview.combination .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .template-preview.combination .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .template-preview.combination .template-preview-line.short {
+            width: 60%;
         }
         
         .result-container {
@@ -1669,20 +1895,25 @@ Preferred Qualifications:
             document.querySelector(`.letter-template[data-template-id="default"]`)?.classList.add('selected');
         }
 
-        // Create template element
+        // Create template element with enhanced preview
         function createTemplateElement(template, type) {
             const div = document.createElement('div');
             div.className = 'template-card';
             div.classList.add(`${type}-template`);
             div.setAttribute('data-template-id', template.id);
+            
+            // Create template-specific preview
+            let previewHTML = '';
+            
+            if (type === 'resume') {
+                previewHTML = createResumePreview(template.id);
+            } else {
+                previewHTML = createLetterPreview(template.id);
+            }
+            
             div.innerHTML = `
-                <div class="template-preview">
-                    <div class="template-preview-content">
-                        <div class="template-preview-line short"></div>
-                        <div class="template-preview-line medium"></div>
-                        <div class="template-preview-line"></div>
-                        <div class="template-preview-line short"></div>
-                    </div>
+                <div class="template-preview ${template.id}">
+                    ${previewHTML}
                 </div>
                 <div class="template-name">${template.name}</div>
             `;
@@ -1697,6 +1928,235 @@ Preferred Qualifications:
             });
             
             return div;
+        }
+
+        // Create resume template preview
+        function createResumePreview(templateId) {
+            switch(templateId) {
+                case 'default':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-header"></div>
+                            <div class="template-preview-line long"></div>
+                            <div class="template-preview-line medium"></div>
+                            <div class="template-preview-line short"></div>
+                            <div class="template-preview-line long"></div>
+                        </div>
+                    `;
+                case 'modern':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-header"></div>
+                            <div class="template-preview-line short" style="background-color: rgba(255,255,255,0.5);"></div>
+                            <div class="template-preview-line long" style="background-color: rgba(255,255,255,0.3);"></div>
+                            <div class="template-preview-line medium" style="background-color: rgba(255,255,255,0.5);"></div>
+                        </div>
+                    `;
+                case 'executive':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-header"></div>
+                            <div class="template-preview-line short" style="background-color: rgba(255,255,255,0.4);"></div>
+                            <div class="template-preview-line long" style="background-color: rgba(255,255,255,0.2);"></div>
+                            <div class="template-preview-line short" style="background-color: rgba(255,255,255,0.4);"></div>
+                            <div class="template-preview-line medium" style="background-color: rgba(255,255,255,0.2);"></div>
+                        </div>
+                    `;
+                case 'creative':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line short" style="background-color: rgba(255,255,255,0.5);"></div>
+                            <div class="template-preview-line long" style="background-color: rgba(255,255,255,0.3);"></div>
+                            <div class="template-preview-line medium" style="background-color: rgba(255,255,255,0.5);"></div>
+                            <div class="template-preview-line short" style="background-color: rgba(255,255,255,0.3);"></div>
+                        </div>
+                    `;
+                case 'technical':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line" style="background-color: #4361EE; height: 3px;"></div>
+                            <div class="template-preview-line" style="background-color: rgba(255,255,255,0.2); height: 3px;"></div>
+                            <div class="template-preview-line" style="background-color: rgba(255,255,255,0.2); height: 3px;"></div>
+                            <div class="template-preview-line" style="background-color: #4361EE; height: 3px;"></div>
+                            <div class="template-preview-line" style="background-color: rgba(255,255,255,0.2); height: 3px;"></div>
+                        </div>
+                    `;
+                case 'academic':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-header"></div>
+                            <div class="template-preview-line long"></div>
+                            <div class="template-preview-line short"></div>
+                            <div class="template-preview-line long"></div>
+                            <div class="template-preview-line medium"></div>
+                        </div>
+                    `;
+                case 'minimalist':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-header"></div>
+                            <div class="template-preview-line long"></div>
+                            <div class="template-preview-line long"></div>
+                            <div class="template-preview-line long"></div>
+                        </div>
+                    `;
+                case 'chronological':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-timeline">
+                                <div class="timeline-dot"></div>
+                                <div class="template-preview-line short"></div>
+                            </div>
+                            <div class="template-preview-timeline">
+                                <div class="timeline-dot"></div>
+                                <div class="template-preview-line medium"></div>
+                            </div>
+                            <div class="template-preview-timeline">
+                                <div class="timeline-dot"></div>
+                                <div class="template-preview-line long"></div>
+                            </div>
+                        </div>
+                    `;
+                case 'functional':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="sidebar-preview"></div>
+                            <div>
+                                <div class="template-preview-line long"></div>
+                                <div class="template-preview-line medium"></div>
+                                <div class="template-preview-line short"></div>
+                            </div>
+                        </div>
+                    `;
+                case 'combination':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="left-column">
+                                <div class="template-preview-line short"></div>
+                                <div class="template-preview-line short"></div>
+                                <div class="template-preview-line short"></div>
+                            </div>
+                            <div class="right-column">
+                                <div class="template-preview-line long"></div>
+                                <div class="template-preview-line long"></div>
+                                <div class="template-preview-line medium"></div>
+                            </div>
+                        </div>
+                    `;
+                default:
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line short"></div>
+                            <div class="template-preview-line medium"></div>
+                            <div class="template-preview-line"></div>
+                            <div class="template-preview-line short"></div>
+                        </div>
+                    `;
+            }
+        }
+
+        // Create cover letter template preview
+        function createLetterPreview(templateId) {
+            switch(templateId) {
+                case 'default':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line short"></div>
+                            <div class="template-preview-line medium"></div>
+                            <div class="template-preview-line long"></div>
+                            <div class="template-preview-line short"></div>
+                        </div>
+                    `;
+                case 'modern':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-header"></div>
+                            <div class="template-preview-line short" style="background-color: rgba(255,255,255,0.5);"></div>
+                            <div class="template-preview-line long" style="background-color: rgba(255,255,255,0.3);"></div>
+                            <div class="template-preview-line medium" style="background-color: rgba(255,255,255,0.5);"></div>
+                        </div>
+                    `;
+                case 'direct':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line long"></div>
+                            <div class="template-preview-line long"></div>
+                            <div class="template-preview-line long"></div>
+                        </div>
+                    `;
+                case 'storytelling':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line medium"></div>
+                            <div class="template-preview-line long"></div>
+                            <div class="template-preview-line medium"></div>
+                            <div class="template-preview-line short"></div>
+                        </div>
+                    `;
+                case 'achievement':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line" style="height: 6px; background-color: rgba(255,255,255,0.6); margin-bottom: 8px;"></div>
+                            <div class="template-preview-line" style="height: 6px; background-color: rgba(255,255,255,0.4); margin-bottom: 8px;"></div>
+                            <div class="template-preview-line" style="height: 6px; background-color: rgba(255,255,255,0.6);"></div>
+                        </div>
+                    `;
+                case 'creative':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line short" style="background-color: rgba(255,255,255,0.5);"></div>
+                            <div class="template-preview-line long" style="background-color: rgba(255,255,255,0.3);"></div>
+                            <div class="template-preview-line medium" style="background-color: rgba(255,255,255,0.5);"></div>
+                            <div class="template-preview-line short" style="background-color: rgba(255,255,255,0.3);"></div>
+                        </div>
+                    `;
+                case 'technical':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line" style="background-color: #4361EE; height: 3px;"></div>
+                            <div class="template-preview-line" style="background-color: rgba(255,255,255,0.2); height: 3px;"></div>
+                            <div class="template-preview-line" style="background-color: rgba(255,255,255,0.2); height: 3px;"></div>
+                            <div class="template-preview-line" style="background-color: #4361EE; height: 3px;"></div>
+                            <div class="template-preview-line" style="background-color: rgba(255,255,255,0.2); height: 3px;"></div>
+                        </div>
+                    `;
+                case 'executive':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-header"></div>
+                            <div class="template-preview-line short" style="background-color: rgba(255,255,255,0.4);"></div>
+                            <div class="template-preview-line long" style="background-color: rgba(255,255,255,0.2);"></div>
+                            <div class="template-preview-line short" style="background-color: rgba(255,255,255,0.4);"></div>
+                            <div class="template-preview-line medium" style="background-color: rgba(255,255,255,0.2);"></div>
+                        </div>
+                    `;
+                case 'passionate':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line long" style="background-color: rgba(255,255,255,0.5);"></div>
+                            <div class="template-preview-line long" style="background-color: rgba(255,255,255,0.3);"></div>
+                            <div class="template-preview-line long" style="background-color: rgba(255,255,255,0.5);"></div>
+                        </div>
+                    `;
+                case 'referral':
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line medium"></div>
+                            <div class="template-preview-line short"></div>
+                            <div class="template-preview-line long"></div>
+                            <div class="template-preview-line short"></div>
+                        </div>
+                    `;
+                default:
+                    return `
+                        <div class="template-preview-content">
+                            <div class="template-preview-line short"></div>
+                            <div class="template-preview-line medium"></div>
+                            <div class="template-preview-line"></div>
+                            <div class="template-preview-line short"></div>
+                        </div>
+                    `;
+            }
         }
 
         // Select template function
